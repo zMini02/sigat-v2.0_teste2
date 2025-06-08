@@ -70,7 +70,7 @@
       var mensagemErro = document.getElementById('mensagemErro');
       mensagemErro.classList.add('hidden');
 
-      database.ref('usuarios').once('value')
+      database.ref('usuario').once('value')
         .then((snapshot) => {
           var usuarios = snapshot.val();
           var encontrado = false;
