@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dashboard - Criar Orçamento</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+      <link rel="shortcut icon" href="favicongrow.png" type="image/x-icon">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet"/>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
+</head>
+<body class="bg-white min-h-screen flex flex-col">
+  <div class="flex flex-1">
+    <!-- Sidebar toggle button for small screens -->
+    <button id="sidebarToggle" class="md:hidden absolute top-4 left-4 z-50 p-2 rounded-md bg-blue-500 text-white focus:outline-none">
+      <svg class="h-6 w-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round">
+        <line x1="3" y1="12" x2="21" y2="12"></line>
+        <line x1="3" y1="6" x2="21" y2="6"></line>
+        <line x1="3" y1="18" x2="21" y2="18"></line>
+      </svg>
+    </button>
+   <!-- Sidebar -->
+   <div id="sidebar" class="fixed inset-y-0 left-0 w-64 bg-blue-500 p-4 flex flex-col transform -translate-x-full md:translate-x-0 transition-transform duration-300 ease-in-out z-40">
+      <h2 class="text-white text-xl font-semibold mb-6 border-b border-blue-400 pb-2">Menu Principal</h2>
+      <nav class="flex flex-col space-y-3 flex-grow overflow-y-auto">
+        <a href="paginaprincipal.html" class="bg-blue-400 hover:bg-blue-600 text-white py-2 rounded-md flex items-center px-3">
+          <i class="fas fa-home text-lg mr-3"></i>
+          <span>Tela Inicial</span>
+        </a>
+        <a href="saidaaparelho.html" class="bg-blue-400 hover:bg-blue-600 text-white py-2 rounded-md flex items-center px-3">
+          <i class="fas fa-sign-in-alt text-lg mr-3"></i>
+          <span>Entrada de celular</span>
+        </a>
+        <a href="andamento.html" class="bg-blue-400 hover:bg-blue-600 text-white py-2 rounded-md flex items-center px-3">
+          <i class="fas fa-tasks text-lg mr-3"></i>
+          <span>Andamento</span>
+        </a>
+        <a href="ordemservico.html" class="bg-blue-400 hover:bg-blue-600 text-white py-2 rounded-md flex items-center px-3">
+          <i class="fas fa-file-alt text-lg mr-3"></i>
+          <span>Criar Ordem de Serviço</span>
+        </a>
+        <a href="orcamento.html" class="bg-blue-400 hover:bg-blue-600 text-white py-2 rounded-md flex items-center px-3">
+          <i class="fas fa-calculator text-lg mr-3"></i>
+          <span>Criar Orçamento</span>
+        </a>
+        <a href="usuarios.html" class="bg-blue-400 hover:bg-blue-600 text-white py-2 rounded-md flex items-center px-3">
+          <i class="fas fa-users text-lg mr-3"></i>
+          <span>Usuários</span>
+        </a>
+        <a href="dadosempresa.html" class="bg-blue-400 hover:bg-blue-600 text-white py-2 rounded-md flex items-center px-3">
+          <i class="fas fa-building text-lg mr-3"></i>
+          <span>Cadastrar Empresa</span>
+        </a>
+        <a href="garantia.html" class="bg-blue-400 hover:bg-blue-600 text-white py-2 rounded-md flex items-center px-3">
+          <i class="fas fa-shield-alt text-lg mr-3"></i>
+          <span>Gerar Garantia</span>
+        </a>
+        <a href="estoque.html" class="bg-blue-400 hover:bg-blue-600 text-white py-2 rounded-md flex items-center px-3">
+          <i class="fas fa-cog text-lg mr-3"></i>
+          <span>Estoque de peças</span>
+        </a>
+        <!-- Nova opção de Fluxo de Caixa -->
+        <a href="fluxocaixa.html" class="bg-blue-400 hover:bg-blue-600 text-white py-2 rounded-md flex items-center px-3">
+          <i class="fas fa-cash-register text-lg mr-3"></i>
+          <span>Fluxo de Caixa</span>
+        </a>
+        <div class="border-t border-blue-400 my-4"></div>
+        <a href="historicodesaidas.html" class="bg-blue-400 hover:bg-blue-600 text-white py-2 rounded-md flex items-center px-3">
+          <i class="fas fa-history text-lg mr-3"></i>
+          <span>Históricos de Saída</span>
+        </a>
+        <a href="index.html" class="bg-blue-400 hover:bg-blue-600 text-white py-2 rounded-md flex items-center px-3">
+          <i class="fas fa-sign-out-alt text-lg mr-3"></i>
+          <span>Sair</span>
+        </a>
+      </nav>
+    </div>
+
+    <!-- Main Content -->
+    <div id="mainContent" class="flex-1 p-4 md:ml-64">
+      <div class="flex items-center mb-4 justify-center relative">
+        <button id="menuToggle" class="md:hidden text-blue-500 focus:outline-none absolute left-0">
+          <i class="fas fa-bars text-3xl"></i>
+        </button>
+        <img alt="Logo" class="h-10 mx-auto" src="logoprincipal.png"/>
+        <div class="relative flex items-center space-x-4 absolute right-0">
+          <i class="fas fa-bell text-blue-500 text-2xl"></i>
+          <div id="userMenu" class="relative cursor-pointer">
+            <i class="fas fa-user-circle text-blue-500 text-2xl"></i>
+            <div id="userSubmenu" class="hidden absolute right-0 mt-2 w-48 bg-white border border-gray-300 rounded-md shadow-lg z-50">
+              <a href="usuarios.html" class="block px-4 py-2 text-gray-700 hover:bg-gray-100">Editar Perfil</a>
+              <a href="#" class="block px-4 py-2 text-gray-700 hover:bg-gray-100">Chamar Suporte</a>
+            </div>
+          </div>
+        </div>
+      </div>
+      <h2 class="text-2xl font-bold mb-4">Criar Orçamento</h2>
+      <form id="formOrcamento" class="space-y-4">
+      <!-- Removed manual company data inputs -->
+      <!-- Removed logo upload input -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+        <label for="empresaSelect" class="block font-medium">Selecionar Empresa:</label>
+        <select id="empresaSelect" class="border p-2 rounded w-full">
+          <option value="" disabled selected>Selecione a empresa</option>
+        </select>
+      </div>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+        <input class="border p-2 rounded" type="text" name="cliente" placeholder="Nome do Cliente" required>
+        <input class="border p-2 rounded" type="text" name="telefone" placeholder="Telefone">
+        <input class="border p-2 rounded md:col-span-2" type="text" name="endereco" placeholder="Endereço completo">
+      </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <input class="border p-2 rounded" type="text" name="equipamento" placeholder="Equipamento">
+          <input class="border p-2 rounded" type="text" name="marca" placeholder="Marca">
+          <input class="border p-2 rounded" type="text" name="modelo" placeholder="Modelo">
+          <input class="border p-2 rounded" type="text" name="imei" placeholder="IMEI">
+          <input class="border p-2 rounded" type="text" name="senha" placeholder="Senha">
+        </div>
+
+        <input class="border p-2 rounded w-full" type="text" name="atendente" placeholder="Atendente">
+        <textarea class="border p-2 rounded w-full" name="defeito" placeholder="Defeito/Reclamação"></textarea>
+        <textarea class="border p-2 rounded w-full" name="laudo" placeholder="Laudo Técnico"></textarea>
+
+        <div id="servicosContainer" class="space-y-4">
+          <div class="grid grid-cols-2 gap-4">
+            <input class="border p-2 rounded" type="text" name="servico" placeholder="Serviço">
+            <input class="border p-2 rounded" type="number" step="0.01" name="valor" placeholder="Valor (R$)">
+          </div>
+        </div>
+        <button type="button" id="addServicoBtn" class="bg-green-500 text-white py-2 px-4 rounded">Adicionar Serviço</button>
+
+        <button type="button" onclick="gerarPDF()" class="bg-blue-500 text-white py-2 px-4 rounded">Gerar PDF</button>
+      </form>
+    </div>
+  </div>
+  <script>
+    // Sidebar toggle script
+    const sidebarToggle = document.getElementById('sidebarToggle');
+    const sidebar = document.getElementById('sidebar');
+    const mainContent = document.getElementById('mainContent');
+
+    sidebarToggle.addEventListener('click', () => {
+      if (sidebar.classList.contains('-translate-x-full')) {
+        sidebar.classList.remove('-translate-x-full');
+        mainContent.classList.add('md:ml-64');
+      } else {
+        sidebar.classList.add('-translate-x-full');
+        mainContent.classList.remove('md:ml-64');
+      }
+    });
+  </script>
+
+  <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
+
+  <script>
+    // Firebase configuration
+    const firebaseConfig = {
+      apiKey: "AIzaSyCQKl609mQW396iquVz3mmgONZ859kIo9w",
+      authDomain: "granjateste-c47d2.firebaseapp.com",
+      databaseURL: "https://granjateste-c47d2-default-rtdb.firebaseio.com",
+      projectId: "granjateste-c47d2",
+      storageBucket: "granjateste-c47d2.firebasestorage.app",
+      messagingSenderId: "177358318142",
+      appId: "1:177358318142:web:7df0d4582d346f80b93f6f",
+      measurementId: "G-XEM6J8Z4CS"
+    };
+
+    // Initialize Firebase
+    firebase.initializeApp(firebaseConfig);
+    const database = firebase.database();
+
+    function adjustSidebarHeight() {
+      const sidebar = document.getElementById('sidebar');
+      const mainContent = document.getElementById('mainContent');
+      if (sidebar && mainContent) {
+        const viewportHeight = window.innerHeight;
+        const mainHeight = mainContent.offsetHeight;
+        const newHeight = Math.max(viewportHeight, mainHeight);
+        sidebar.style.minHeight = newHeight + 'px';
+      }
+    }
+
+    window.addEventListener('load', adjustSidebarHeight);
+    window.addEventListener('resize', adjustSidebarHeight);
+
+    const servicosContainer = document.getElementById('servicosContainer');
+    const addServicoBtn = document.getElementById('addServicoBtn');
+
+    addServicoBtn.addEventListener('click', () => {
+      const newServicoDiv = document.createElement('div');
+      newServicoDiv.className = 'grid grid-cols-2 gap-4';
+      newServicoDiv.innerHTML = `
+        <input class="border p-2 rounded" type="text" name="servico" placeholder="Serviço">
+        <input class="border p-2 rounded" type="number" step="0.01" name="valor" placeholder="Valor (R$)">
+      `;
+      servicosContainer.appendChild(newServicoDiv);
+    });
+
+    async function gerarPDF() {
+      const { jsPDF } = window.jspdf;
+      const doc = new jsPDF();
+
+      const form = document.forms['formOrcamento'];
+      const cliente = form.cliente.value;
+      const telefone = form.telefone.value;
+      const endereco = form.endereco.value;
+      const equipamento = form.equipamento.value;
+      const marca = form.marca.value;
+      const modelo = form.modelo.value;
+      const imei = form.imei.value;
+      const senha = form.senha.value;
+      const atendente = form.atendente.value;
+      const defeito = form.defeito.value;
+      const laudo = form.laudo.value;
+
+      // Collect all services and values
+      const servicoInputs = form.querySelectorAll('input[name="servico"]');
+      const valorInputs = form.querySelectorAll('input[name="valor"]');
+
+      const servicos = [];
+      for (let i = 0; i < servicoInputs.length; i++) {
+        const servico = servicoInputs[i].value.trim();
+        const valor = parseFloat(valorInputs[i].value) || 0;
+        if (servico) {
+          servicos.push({ servico, valor });
+        }
+      }
+
+      // Use company data from Firebase
+      const empresasData = window.empresasData || {};
+      const empresaSelect = document.getElementById('empresaSelect');
+      const selectedCompanyKey = empresaSelect.value;
+      const selectedCompany = empresasData[selectedCompanyKey] || null;
+
+      const empresaNome = selectedCompany && selectedCompany.nome ? selectedCompany.nome : "NOME DA EMPRESA";
+      const empresaEndereco = selectedCompany && selectedCompany.endereco ? selectedCompany.endereco : "ENDEREÇO DA EMPRESA";
+      const empresaTelefone = selectedCompany && selectedCompany.telefone ? selectedCompany.telefone : "TELEFONE DA EMPRESA";
+      const empresaLogoUrl = selectedCompany && selectedCompany.logo ? selectedCompany.logo : null;
+
+      // Function to convert image URL to base64
+      async function imageUrlToBase64(url) {
+        return new Promise((resolve, reject) => {
+          const img = new Image();
+          img.crossOrigin = "Anonymous";
+          img.onload = () => {
+            const canvas = document.createElement('canvas');
+            canvas.width = img.width;
+            canvas.height = img.height;
+            const ctx = canvas.getContext('2d');
+            ctx.drawImage(img, 0, 0);
+            resolve(canvas.toDataURL('image/png'));
+          };
+          img.onerror = () => reject(new Error('Failed to load image'));
+          img.src = url;
+        });
+      }
+
+      let imgDataUrl = null;
+      if (empresaLogoUrl) {
+        try {
+          imgDataUrl = await imageUrlToBase64(empresaLogoUrl);
+        } catch (error) {
+          imgDataUrl = null;
+        }
+      }
+
+      let y = 10;
+      doc.setFontSize(12);
+
+      // Add logo image on left side of header
+      if (imgDataUrl) {
+        const img = new Image();
+        img.src = imgDataUrl;
+        await new Promise((resolve) => {
+          img.onload = () => {
+            const imgWidth = 40;
+            const imgHeight = (img.height * imgWidth) / img.width;
+            const textBlockHeight = 18;
+            const imgY = y + (textBlockHeight / 2) - (imgHeight / 2);
+            doc.addImage(imgDataUrl, 'PNG', 10, imgY, imgWidth, imgHeight);
+            resolve();
+          };
+          img.onerror = () => {
+            resolve();
+          };
+        });
+      }
+
+      const textX = 10 + 45;
+      let textY = y + 5;
+
+      doc.text(empresaNome, textX, textY); textY += 6;
+      doc.text(empresaEndereco, textX, textY); textY += 6;
+      doc.text(empresaTelefone, textX, textY); textY += 10;
+
+      y = Math.max(y + 40, textY);
+
+      // Increment and get service number from localStorage
+      let serviceNumber = parseInt(localStorage.getItem('serviceNumber') || '0', 10);
+      serviceNumber++;
+      localStorage.setItem('serviceNumber', serviceNumber);
+
+      doc.text(`MOSSORÓ, ${new Date().toLocaleDateString('pt-BR')}`, 10, y); y += 10;
+      doc.text(`Orçamento Nº ${serviceNumber}`, 10, y); y += 10;
+
+      // Client Info Table
+      doc.autoTable({
+        startY: y,
+        head: [["Cliente", "Endereço", "Telefone"]],
+        body: [[cliente, endereco, telefone]],
+        theme: 'grid',
+        headStyles: { fillColor: [41, 128, 185] },
+        styles: { fontSize: 10 },
+      });
+      y = doc.lastAutoTable.finalY + 10;
+
+      // Device Info Table
+      doc.autoTable({
+        startY: y,
+        head: [["Equipamento", "Marca", "Modelo", "IMEI", "Senha", "Atendente"]],
+        body: [[equipamento, marca, modelo, imei, senha, atendente]],
+        theme: 'grid',
+        headStyles: { fillColor: [41, 128, 185] },
+        styles: { fontSize: 10 },
+      });
+      y = doc.lastAutoTable.finalY + 10;
+
+      // Defeito/Reclamação Table
+      doc.autoTable({
+        startY: y,
+        head: [["Defeito/Reclamação"]],
+        body: [[doc.splitTextToSize(defeito, 180).join('\n')]],
+        theme: 'grid',
+        headStyles: { fillColor: [41, 128, 185] },
+        styles: { fontSize: 10, cellWidth: 'wrap' },
+        columnStyles: { 0: { cellWidth: 180 } },
+      });
+      y = doc.lastAutoTable.finalY + 10;
+
+      // Laudo Técnico Table
+      doc.autoTable({
+        startY: y,
+        head: [["Laudo Técnico"]],
+        body: [[doc.splitTextToSize(laudo, 180).join('\n')]],
+        theme: 'grid',
+        headStyles: { fillColor: [41, 128, 185] },
+        styles: { fontSize: 10, cellWidth: 'wrap' },
+        columnStyles: { 0: { cellWidth: 180 } },
+      });
+      y = doc.lastAutoTable.finalY + 10;
+
+      // Valores do Orçamento Table
+      const tableColumn = ["Serviço", "Responsável", "Qtd", "Total"];
+      const tableRows = [];
+
+      servicos.forEach(({ servico, valor }) => {
+        tableRows.push([servico, "NYLLDO CELL", "1,00x", `R$ ${valor.toFixed(2)}`]);
+      });
+
+      doc.autoTable({
+        startY: y,
+        head: [tableColumn],
+        body: tableRows,
+        theme: 'grid',
+        headStyles: { fillColor: [41, 128, 185] },
+        styles: { fontSize: 10 },
+      });
+      y = doc.lastAutoTable.finalY + 10;
+
+      // Total and footer text
+      const total = servicos.reduce((sum, item) => sum + item.valor, 0);
+      doc.text(`TOTAL GERAL: R$ ${total.toFixed(2)}`, 10, y); y += 10;
+      doc.text("*** ORÇAMENTO JÁ ENCERRADO ***", 10, y); y += 10;
+      doc.text("Orçamento de OS", 10, y); y += 6;
+      doc.text("Gerado no SIGAT - PDV", 10, y);
+      // Save PDF automatically to default downloads folder without popup
+      const pdfFileName = `orcamento_${cliente.replace(/\s/g, '_')}.pdf`;
+      doc.save(pdfFileName);
+    }
+
+    // Fetch company data from Firebase Realtime Database
+    window.empresasData = {};
+    const empresasRef = database.ref('empresas');
+    empresasRef.once('value').then(snapshot => {
+      window.empresasData = snapshot.val() || {};
+      const empresaSelect = document.getElementById('empresaSelect');
+      empresaSelect.innerHTML = '<option value="" disabled selected>Selecione a empresa</option>';
+      for (const key in window.empresasData) {
+        if (window.empresasData.hasOwnProperty(key)) {
+          const option = document.createElement('option');
+          option.value = key;
+          option.textContent = window.empresasData[key].nome || key;
+          empresaSelect.appendChild(option);
+        }
+      }
+    }).catch(error => {
+      console.error('Erro ao carregar dados da empresa:', error);
+    });
+  </script>
+</body>
+</html>

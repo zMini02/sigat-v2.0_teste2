@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="pt-BR" class="min-h-screen">
+<head>
+  <meta charset="utf-8"/>
+  <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+  <title>Dashboard</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="shortcut icon" href="favicongrow.png" type="image/x-icon">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet"/>
+  <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
+</head>
+  <body class="bg-white min-h-screen flex flex-col">
+
+  <!-- Container principal (Sidebar + Conteúdo) -->
+  <div class="flex flex-1 relative">
+    
+  <!-- Sidebar -->
+  <div id="sidebar" class="fixed inset-y-0 left-0 w-64 bg-blue-500 p-4 flex flex-col transform -translate-x-full md:translate-x-0 transition-transform duration-300 ease-in-out z-40">
+      <h2 class="text-white text-xl font-semibold mb-6 border-b border-blue-400 pb-2">Menu Principal</h2>
+      <nav class="flex flex-col space-y-3 flex-grow overflow-y-auto">
+        <a href="paginaprincipal.html" class="bg-blue-400 hover:bg-blue-600 text-white py-2 rounded-md flex items-center px-3">
+          <i class="fas fa-home text-lg mr-3"></i>
+          <span>Tela Inicial</span>
+        </a>
+        <a href="saidaaparelho.html" class="bg-blue-400 hover:bg-blue-600 text-white py-2 rounded-md flex items-center px-3">
+          <i class="fas fa-sign-in-alt text-lg mr-3"></i>
+          <span>Entrada de celular</span>
+        </a>
+        <a href="andamento.html" class="bg-blue-400 hover:bg-blue-600 text-white py-2 rounded-md flex items-center px-3">
+          <i class="fas fa-tasks text-lg mr-3"></i>
+          <span>Andamento</span>
+        </a>
+        <a href="ordemservico.html" class="bg-blue-400 hover:bg-blue-600 text-white py-2 rounded-md flex items-center px-3">
+          <i class="fas fa-file-alt text-lg mr-3"></i>
+          <span>Criar Ordem de Serviço</span>
+        </a>
+        <a href="orcamento.html" class="bg-blue-400 hover:bg-blue-600 text-white py-2 rounded-md flex items-center px-3">
+          <i class="fas fa-calculator text-lg mr-3"></i>
+          <span>Criar Orçamento</span>
+        </a>
+        <a href="usuarios.html" class="bg-blue-400 hover:bg-blue-600 text-white py-2 rounded-md flex items-center px-3">
+          <i class="fas fa-users text-lg mr-3"></i>
+          <span>Usuários</span>
+        </a>
+        <a href="dadosempresa.html" class="bg-blue-400 hover:bg-blue-600 text-white py-2 rounded-md flex items-center px-3">
+          <i class="fas fa-building text-lg mr-3"></i>
+          <span>Cadastrar Empresa</span>
+        </a>
+        <a href="garantia.html" class="bg-blue-400 hover:bg-blue-600 text-white py-2 rounded-md flex items-center px-3">
+          <i class="fas fa-shield-alt text-lg mr-3"></i>
+          <span>Gerar Garantia</span>
+        </a>
+        <a href="estoque.html" class="bg-blue-400 hover:bg-blue-600 text-white py-2 rounded-md flex items-center px-3">
+          <i class="fas fa-cog text-lg mr-3"></i>
+          <span>Estoque de peças</span>
+        </a>
+        <!-- Nova opção de Fluxo de Caixa -->
+        <a href="fluxocaixa.html" class="bg-blue-400 hover:bg-blue-600 text-white py-2 rounded-md flex items-center px-3">
+          <i class="fas fa-cash-register text-lg mr-3"></i>
+          <span>Fluxo de Caixa</span>
+        </a>
+        <div class="border-t border-blue-400 my-4"></div>
+        <a href="historicodesaidas.html" class="bg-blue-400 hover:bg-blue-600 text-white py-2 rounded-md flex items-center px-3">
+          <i class="fas fa-history text-lg mr-3"></i>
+          <span>Históricos de Saída</span>
+        </a>
+        <a href="index.html" class="bg-blue-400 hover:bg-blue-600 text-white py-2 rounded-md flex items-center px-3">
+          <i class="fas fa-sign-out-alt text-lg mr-3"></i>
+          <span>Sair</span>
+        </a>
+      </nav>
+    </div>
+
+    <!-- Conteúdo principal -->
+    <div class="w-full md:w-5/6 md:ml-64 p-4">
+      <div class="flex items-center mb-4 justify-center relative">
+        <button id="menuToggle" class="md:hidden text-blue-500 focus:outline-none absolute left-0">
+          <i class="fas fa-bars text-3xl"></i>
+        </button>
+        <img alt="Logo" class="h-10 mx-auto" src="logoprincipal.png"/>
+        <div class="relative flex items-center space-x-4 absolute right-0">
+          <i class="fas fa-bell text-blue-500 text-2xl"></i>
+          <div id="userMenu" class="relative cursor-pointer">
+            <i class="fas fa-user-circle text-blue-500 text-2xl"></i>
+            <div id="userSubmenu" class="hidden absolute right-0 mt-2 w-48 bg-white border border-gray-300 rounded-md shadow-lg z-50">
+              <a href="usuarios.html" class="block px-4 py-2 text-gray-700 hover:bg-gray-100">Editar Perfil</a>
+              <a href="#" class="block px-4 py-2 text-gray-700 hover:bg-gray-100">Chamar Suporte</a>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="mb-4">
+        <h2 class="text-blue-500 text-2xl font-bold">Andamento de celulares:</h2>
+        <div class="flex flex-col md:flex-row space-y-4 md:space-y-0 md:space-x-4 mt-4">
+          <div class="bg-green-100 border-2 border-green-500 rounded-lg p-4 text-center w-full md:w-1/3">
+            <h3 class="text-green-500 text-xl font-bold">Finalizados:</h3>
+            <p id="finalizadosCount" class="text-green-500 text-4xl font-bold">0</p>
+          </div>
+          <div class="bg-yellow-100 border-2 border-yellow-500 rounded-lg p-4 text-center w-full md:w-1/3">
+            <h3 class="text-yellow-500 text-xl font-bold">Em andamento:</h3>
+            <p id="emAndamentoCount" class="text-yellow-500 text-4xl font-bold">0</p>
+          </div>
+          <div class="bg-red-100 border-2 border-red-500 rounded-lg p-4 text-center w-full md:w-1/3">
+            <h3 class="text-red-500 text-xl font-bold">Pendentes:</h3>
+            <p id="pendentesCount" class="text-red-500 text-4xl font-bold">0</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="mb-4">
+        <h2 class="text-blue-500 text-2xl font-bold">Aguardando Conserto:</h2>
+        <div id="aguardandoConserto" class="flex space-x-4 overflow-x-auto mt-4"></div>
+      </div>
+
+      <div>
+        <h2 class="text-blue-500 text-2xl font-bold">Ultimas Saídas:</h2>
+        <div id="historicoSaidas" class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Rodapé -->
+
+  <style>
+    /* Popup fade-in and fade-out animations */
+    @keyframes fadeIn {
+      from {opacity: 0;}
+      to {opacity: 1;}
+    }
+    @keyframes fadeOut {
+      from {opacity: 1;}
+      to {opacity: 0;}
+    }
+    #popupModal {
+      animation-duration: 0.5s;
+      animation-fill-mode: forwards;
+    }
+    #popupModal.show {
+      display: flex !important;
+      animation-name: fadeIn;
+    }
+    #popupModal.hide {
+      animation-name: fadeOut;
+    }
+  </style>
+
+  <div id="popupModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden" role="dialog" aria-modal="true" aria-labelledby="popupTitle" aria-describedby="popupDesc">
+    <div class="bg-white rounded-lg shadow-lg p-6 max-w-sm w-full relative mx-4">
+      <button id="closePopup" aria-label="Fechar popup" class="absolute top-2 right-2 text-gray-600 hover:text-gray-900 text-2xl font-bold focus:outline-none focus:ring-2 focus:ring-blue-500 rounded">&times;</button>
+      <img src="logoprincipal.png" alt="Nova Atualização" class="mx-auto mb-4 w-32 h-auto"/>
+      <h2 id="popupTitle" class="text-xl font-bold text-center mb-2">Nova Atualização</h2>
+      <p id="popupDesc" class="text-center text-gray-700">Fluxo de caixa, gerencie entradas e saidas do caixa</p>
+    </div>
+  </div>
+
+  <div id="overlay" class="fixed inset-0 bg-black bg-opacity-50 z-30 hidden md:hidden"></div>
+
+  <audio id="notificationSound" src="notification.mp3" preload="auto"></audio>
+
+  <script>
+    // Popup modal show once logic with fade animations
+    document.addEventListener('DOMContentLoaded', () => {
+      const popupModal = document.getElementById('popupModal');
+      const closePopup = document.getElementById('closePopup');
+      const popupShown = localStorage.getItem('popupShown');
+
+      function showPopup() {
+        popupModal.classList.remove('hidden', 'hide');
+        popupModal.classList.add('show');
+      }
+
+      function hidePopup() {
+        popupModal.classList.remove('show');
+        popupModal.classList.add('hide');
+        popupModal.addEventListener('animationend', () => {
+          popupModal.classList.add('hidden');
+          popupModal.classList.remove('hide');
+        }, { once: true });
+      }
+
+      if (!popupShown) {
+        showPopup();
+        localStorage.setItem('popupShown', 'true');
+      }
+
+      closePopup.addEventListener('click', () => {
+        hidePopup();
+      });
+    });
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyCQKl609mQW396iquVz3mmgONZ859kIo9w",
+      authDomain: "granjateste-c47d2.firebaseapp.com",
+      databaseURL: "https://granjateste-c47d2-default-rtdb.firebaseio.com",
+      projectId: "granjateste-c47d2",
+      storageBucket: "granjateste-c47d2.firebasestorage.app",
+      messagingSenderId: "177358318142",
+      appId: "1:177358318142:web:7df0d4582d346f80b93f6f",
+      measurementId: "G-XEM6J8Z4CS"
+    };
+
+    const app = firebase.initializeApp(firebaseConfig);
+    const database = firebase.database();
+    const saidasRef = database.ref('saidas');
+
+    // Load notified keys from localStorage or initialize empty Set
+    const notifiedSaidas = new Set(JSON.parse(localStorage.getItem('notifiedSaidas') || '[]'));
+
+    saidasRef.on('child_added', (snapshot) => {
+      const key = snapshot.key;
+      if (!notifiedSaidas.has(key)) {
+        notifiedSaidas.add(key);
+        localStorage.setItem('notifiedSaidas', JSON.stringify(Array.from(notifiedSaidas)));
+        const saida = snapshot.val();
+        if (saida) showPopup(saida.modelo || 'Modelo não informado');
+      }
+    });
+
+    function showPopup(modelo) {
+      const popup = document.createElement('div');
+      popup.className = 'fixed top-16 right-4 bg-blue-500 text-white p-4 rounded-lg shadow-lg flex items-center space-x-2';
+      popup.innerHTML = `<i class="fas fa-info-circle text-xl"></i><span>Nova saída registrada: ${modelo}</span>`;
+      document.body.appendChild(popup);
+      document.getElementById('notificationSound').play();
+      setTimeout(() => popup.remove(), 5000);
+    }
+
+    saidasRef.on('value', (snapshot) => {
+      const saidas = snapshot.val();
+      const count = saidas ? Object.keys(saidas).length : 0;
+      document.getElementById('finalizadosCount').textContent = count;
+      const historicoSaidasContainer = document.getElementById('historicoSaidas');
+      historicoSaidasContainer.innerHTML = '';
+
+      if (saidas) {
+        const keys = Object.keys(saidas).slice(-4).reverse();
+        keys.forEach((key) => {
+          const s = saidas[key];
+          const card = document.createElement('div');
+          card.className = 'bg-gray-100 border-2 border-gray-300 rounded-lg p-4';
+          card.innerHTML = `
+            <h3 class="text-blue-500 text-xl font-bold">${s.nome || 'Aparelho'}</h3>
+            <p class="text-gray-700">Modelo: ${s.modelo || 'Desconhecido'}</p>
+            <p class="text-gray-700">Cliente: ${s.cliente || 'Desconhecido'}</p>
+            <p class="text-gray-700">Problema: ${s.problema || 'Desconhecido'}</p>
+            <p class="text-gray-700">Data de saída: ${s.dataHoraSaida || 'Não especificada'}</p>
+          `;
+          historicoSaidasContainer.appendChild(card);
+        });
+      } else {
+        historicoSaidasContainer.innerHTML = '<p class="text-gray-500">Nenhum histórico de saída encontrado.</p>';
+      }
+    });
+
+      const aparelhosRef = database.ref('aparelhos');
+      const entradaRef = database.ref('entrada');
+      aparelhosRef.on('value', async (snapshot) => {
+        const aparelhos = snapshot.val();
+        let emAndamentoCount = 0, pendentesCount = 0;
+        const aguardandoContainer = document.getElementById('aguardandoConserto');
+        aguardandoContainer.innerHTML = '';
+
+        if (aparelhos) {
+          Object.values(aparelhos).forEach((a) => {
+            const status = a.status?.toLowerCase();
+            if (status === 'em andamento') emAndamentoCount++;
+            if (status === 'aguardando conserto') {
+              pendentesCount++;
+              const card = document.createElement('div');
+              card.className = 'bg-yellow-100 border-2 border-yellow-500 rounded-lg p-4 min-w-[250px]';
+              card.innerHTML = `
+                <h3 class="text-yellow-500 text-xl font-bold">${a.nome || 'Aparelho'}</h3>
+                <p class="text-yellow-700">Modelo: ${a.modelo || 'Desconhecido'}</p>
+                <p class="text-yellow-700">Cliente: ${a.cliente || 'Desconhecido'}</p>
+                <p class="text-yellow-700">Problema: ${a.problema || 'Desconhecido'}</p>
+                <p class="text-yellow-700">Status: ${a.status}</p>
+              `;
+              aguardandoContainer.appendChild(card);
+            }
+          });
+        }
+
+        // Fetch entrada data once and process all statuses
+        const entradaSnapshot = await entradaRef.once('value');
+        const entradas = entradaSnapshot.val();
+        let entradaPendentesCount = 0;
+        if (entradas) {
+          Object.values(entradas).forEach((e) => {
+            const status = e.status?.toLowerCase();
+            if (status === 'em andamento') {
+              emAndamentoCount++;
+            }
+            if (status === 'aguardando conserto') {
+              entradaPendentesCount++;
+              const card = document.createElement('div');
+              card.className = 'bg-yellow-100 border-2 border-yellow-500 rounded-lg p-4 min-w-[250px]';
+              card.innerHTML = `
+                <h3 class="text-yellow-500 text-xl font-bold">${e.nome || 'Aparelho'}</h3>
+                <p class="text-yellow-700">Modelo: ${e.modelo || 'Desconhecido'}</p>
+                <p class="text-yellow-700">Cliente: ${e.cliente || 'Desconhecido'}</p>
+                <p class="text-yellow-700">Problema: ${e.problema || 'Desconhecido'}</p>
+                <p class="text-yellow-700">Status: ${e.status}</p>
+              `;
+              aguardandoContainer.appendChild(card);
+            }
+          });
+        }
+
+        const totalPendentes = pendentesCount + entradaPendentesCount;
+        document.getElementById('emAndamentoCount').textContent = emAndamentoCount;
+        document.getElementById('pendentesCount').textContent = totalPendentes;
+      });
+
+    // Sidebar toggle functionality
+    const menuToggle = document.getElementById('menuToggle');
+    const sidebar = document.getElementById('sidebar');
+    const overlay = document.getElementById('overlay');
+
+    menuToggle.addEventListener('click', () => {
+      sidebar.classList.toggle('-translate-x-full');
+      overlay.classList.toggle('hidden');
+    });
+
+    overlay.addEventListener('click', () => {
+      sidebar.classList.add('-translate-x-full');
+      overlay.classList.add('hidden');
+    });
+
+  </script>
+  <script>
+      // Toggle user submenu visibility on click
+      document.getElementById('userMenu').addEventListener('click', function(event) {
+        event.stopPropagation();
+        const submenu = document.getElementById('userSubmenu');
+        submenu.classList.toggle('hidden');
+      });
+
+      // Hide submenu if clicking outside
+      document.addEventListener('click', function() {
+        const submenu = document.getElementById('userSubmenu');
+        if (!submenu.classList.contains('hidden')) {
+          submenu.classList.add('hidden');
+        }
+      });
+    </script>
+</body>
+</html>
