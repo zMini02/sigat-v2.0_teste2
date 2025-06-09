@@ -239,18 +239,22 @@
       </div>
     </div>
   </div>
-  <script>
+    <script>
     const sidebarToggle = document.getElementById('sidebarToggle');
     const sidebar = document.getElementById('sidebar');
     const mainContent = document.getElementById('mainContent');
 
     sidebarToggle.addEventListener('click', () => {
-      if (sidebar.classList.contains('-translate-x-full')) {
-        sidebar.classList.remove('-translate-x-full');
-        mainContent.classList.add('md:ml-64');
-      } else {
+      if (sidebar.classList.contains('show')) {
+        // Close sidebar
+        sidebar.classList.remove('show');
         sidebar.classList.add('-translate-x-full');
         mainContent.classList.remove('md:ml-64');
+      } else {
+        // Open sidebar
+        sidebar.classList.add('show');
+        sidebar.classList.remove('-translate-x-full');
+        mainContent.classList.add('md:ml-64');
       }
     });
   </script>
