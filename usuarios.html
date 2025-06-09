@@ -310,8 +310,9 @@
   </script>
   <script>
     // Existing paginavendas.js user management scripts
-    const firebaseURL = "https://sigbarber-default-rtdb.firebaseio.com/usuarios";
     let editingId = null;
+
+    const usuariosRef = database.ref('usuario');
 
     document.getElementById('openModal').addEventListener('click', () => {
       document.getElementById('nomeInput').value = '';
@@ -349,28 +350,27 @@
     });
 
     function saveData(data) {
-      const url = editingId
-        ? `${firebaseURL}/${editingId}.json`
-        : `${firebaseURL}.json`;
-      const method = editingId ? "PATCH" : "POST";
-
-      fetch(url, {
-        method,
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(data),
-      })
-      .then(res => res.json())
-      .then(() => {
-        alert(editingId ? "Atualizado!" : "Cadastrado!");
-        document.getElementById('imageModal').classList.add('hidden');
-        loadCards();
-      });
+      if (editingId) {
+        usuariosRef.child(editingId).update(data)
+          .then(() => {
+            alert("Atualizado!");
+            document.getElementById('imageModal').classList.add('hidden');
+            loadCards();
+          });
+      } else {
+        usuariosRef.push(data)
+          .then(() => {
+            alert("Cadastrado!");
+            document.getElementById('imageModal').classList.add('hidden');
+            loadCards();
+          });
+      }
     }
 
     function editUser(id) {
-      fetch(`${firebaseURL}/${id}.json`)
-        .then(res => res.json())
-        .then(data => {
+      usuariosRef.child(id).once('value')
+        .then(snapshot => {
+          const data = snapshot.val();
           document.getElementById('nomeInput').value = data.nome;
           document.getElementById('usuarioInput').value = data.usuario;
           document.getElementById('senhaInput').value = data.senha;
@@ -383,15 +383,15 @@
 
     function deleteUser(id) {
       if (confirm("Deseja realmente excluir este usuário?")) {
-        fetch(`${firebaseURL}/${id}.json`, { method: 'DELETE' })
+        usuariosRef.child(id).remove()
           .then(() => loadCards());
       }
     }
 
     function loadCards() {
-      fetch(`${firebaseURL}.json`)
-        .then(res => res.json())
-        .then(data => {
+      usuariosRef.once('value')
+        .then(snapshot => {
+          const data = snapshot.val();
           const container = document.getElementById('imageContainer');
           container.innerHTML = '';
           if (data) {
