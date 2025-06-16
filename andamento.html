@@ -163,12 +163,41 @@
           </div>
         </div>
       </div>
+      </div>
     </div>
-  </div>
 
   <audio id="notificationSound" src="notification.mp3" preload="auto"></audio>
 
-    <script>
+  <!-- Modal de Edição -->
+  <div id="editModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden z-50">
+    <div class="bg-white rounded-lg p-6 w-full max-w-md max-h-[80vh] overflow-auto">
+      <h2 class="text-blue-500 text-xl font-bold mb-4">Editar Aparelho</h2>
+      <form id="editForm" class="space-y-4">
+        <div>
+          <label for="editNome" class="block font-semibold mb-1">Nome:</label>
+          <input type="text" id="editNome" name="nome" class="w-full border border-gray-300 rounded-md p-2" required />
+        </div>
+        <div>
+          <label for="editModelo" class="block font-semibold mb-1">Modelo:</label>
+          <input type="text" id="editModelo" name="modelo" class="w-full border border-gray-300 rounded-md p-2" required />
+        </div>
+        <div>
+          <label for="editCliente" class="block font-semibold mb-1">Cliente:</label>
+          <input type="text" id="editCliente" name="cliente" class="w-full border border-gray-300 rounded-md p-2" required />
+        </div>
+        <div>
+          <label for="editProblema" class="block font-semibold mb-1">Problema:</label>
+          <textarea id="editProblema" name="problema" class="w-full border border-gray-300 rounded-md p-2" rows="3" required></textarea>
+        </div>
+        <div class="flex justify-end space-x-2">
+          <button type="button" id="cancelEditBtn" class="bg-gray-300 text-gray-700 py-2 px-4 rounded-md hover:bg-gray-400 transition">Cancelar</button>
+          <button type="submit" class="bg-blue-500 text-white py-2 px-4 rounded-md hover:bg-blue-600 transition">Salvar</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script>
     const firebaseConfig = {
       apiKey: "AIzaSyCQKl609mQW396iquVz3mmgONZ859kIo9w",
       authDomain: "granjateste-c47d2.firebaseapp.com",
@@ -200,122 +229,168 @@
     const entradaRef = database.ref('entrada');
     const cardsContainer = document.getElementById('cardsContainer');
 
+    // Elements for edit modal
+    const editModal = document.getElementById('editModal');
+    const editForm = document.getElementById('editForm');
+    const editNome = document.getElementById('editNome');
+    const editModelo = document.getElementById('editModelo');
+    const editCliente = document.getElementById('editCliente');
+    const editProblema = document.getElementById('editProblema');
+    const cancelEditBtn = document.getElementById('cancelEditBtn');
+
+    let currentEditKey = null;
+
     entradaRef.on('value', (snapshot) => {
       const aparelhos = snapshot.val();
       cardsContainer.innerHTML = '';
 
-          if (aparelhos) {
-            Object.entries(aparelhos).forEach(([key, a]) => {
-              const card = document.createElement('div');
-              card.className = 'bg-white border border-gray-300 rounded-lg p-4 shadow hover:shadow-lg transition cursor-pointer';
-              card.innerHTML = `
-                <h3 class="text-blue-500 text-xl font-bold mb-2">${a.nome || 'Aparelho'}</h3>
-                <p><strong>Modelo:</strong> ${a.modelo || 'Desconhecido'}</p>
-                <p><strong>Cliente:</strong> ${a.cliente || 'Desconhecido'}</p>
-                <p><strong>Problema:</strong> ${a.problema || 'Desconhecido'}</p>
-                <label for="statusSelect${key}" class="block font-semibold mt-2">Status:</label>
-  <select id="statusSelect${key}" class="w-full border border-gray-300 rounded-md p-2" data-id="${key}">
-    <option value="aguardando conserto" ${a.status?.toLowerCase() === 'aguardando conserto' ? 'selected' : ''}>Aguardando conserto</option>
-    <option value="em andamento" ${a.status?.toLowerCase() === 'em andamento' ? 'selected' : ''}>Em andamento</option>
-    <option value="aguardando retirada" ${a.status?.toLowerCase() === 'aguardando retirada' ? 'selected' : ''}>Aguardando retirada</option>
-    <option value="finalizado" ${a.status?.toLowerCase() === 'finalizado' ? 'selected' : ''}>Finalizado</option>
-  </select>
-  <div class="mt-4 flex space-x-2">
-    <button class="edit-btn bg-yellow-400 hover:bg-yellow-500 text-white py-1 px-3 rounded-md" data-id="${key}">Editar</button>
-    <button class="delete-btn bg-red-500 hover:bg-red-600 text-white py-1 px-3 rounded-md" data-id="${key}">Excluir</button>
-  </div>
-              `;
-              cardsContainer.appendChild(card);
-  
-              const statusSelect = card.querySelector(`#statusSelect${key}`);
-              const editBtn = card.querySelector('.edit-btn');
-              const deleteBtn = card.querySelector('.delete-btn');
-  
-              editBtn.addEventListener('click', () => {
-                alert('Editar aparelho: ' + (a.nome || 'Aparelho'));
-                // Here you can implement the edit functionality, e.g., open a modal to edit details
+      if (aparelhos) {
+        Object.entries(aparelhos).forEach(([key, a]) => {
+          const card = document.createElement('div');
+          card.className = 'bg-white border border-gray-300 rounded-lg p-4 shadow hover:shadow-lg transition cursor-pointer';
+          card.innerHTML = `
+            <h3 class="text-blue-500 text-xl font-bold mb-2">${a.nome || 'Aparelho'}</h3>
+            <p><strong>Modelo:</strong> ${a.modelo || 'Desconhecido'}</p>
+            <p><strong>Cliente:</strong> ${a.cliente || 'Desconhecido'}</p>
+            <p><strong>Problema:</strong> ${a.problema || 'Desconhecido'}</p>
+            <label for="statusSelect${key}" class="block font-semibold mt-2">Status:</label>
+            <select id="statusSelect${key}" class="w-full border border-gray-300 rounded-md p-2" data-id="${key}">
+              <option value="aguardando conserto" ${a.status?.toLowerCase() === 'aguardando conserto' ? 'selected' : ''}>Aguardando conserto</option>
+              <option value="em andamento" ${a.status?.toLowerCase() === 'em andamento' ? 'selected' : ''}>Em andamento</option>
+              <option value="aguardando retirada" ${a.status?.toLowerCase() === 'aguardando retirada' ? 'selected' : ''}>Aguardando retirada</option>
+              <option value="finalizado" ${a.status?.toLowerCase() === 'finalizado' ? 'selected' : ''}>Finalizado</option>
+            </select>
+            <div class="mt-4 flex space-x-2">
+              <button class="edit-btn bg-yellow-400 hover:bg-yellow-500 text-white py-1 px-3 rounded-md" data-id="${key}">Editar</button>
+              <button class="delete-btn bg-red-500 hover:bg-red-600 text-white py-1 px-3 rounded-md" data-id="${key}">Excluir</button>
+            </div>
+          `;
+          cardsContainer.appendChild(card);
+
+          const statusSelect = card.querySelector(`#statusSelect${key}`);
+          const editBtn = card.querySelector('.edit-btn');
+          const deleteBtn = card.querySelector('.delete-btn');
+
+          editBtn.addEventListener('click', () => {
+            openEditModal(key);
+          });
+
+          deleteBtn.addEventListener('click', () => {
+            if (confirm('Tem certeza que deseja excluir este aparelho?')) {
+              const aparelhoRef = database.ref('entrada/' + key);
+              aparelhoRef.remove();
+            }
+          });
+
+          statusSelect.addEventListener('change', (event) => {
+            const newStatus = event.target.value;
+            const aparelhoId = event.target.getAttribute('data-id');
+            const aparelhoRef = database.ref('entrada/' + aparelhoId);
+            const saidasRef = database.ref('saidas');
+
+            if (newStatus === 'finalizado') {
+              const confirmModal = document.getElementById('confirmFinalizarModal');
+              const finalizarDetails = document.getElementById('finalizarDetails');
+              const confirmBtn = document.getElementById('confirmFinalizarBtn');
+              const cancelBtn = document.getElementById('cancelFinalizarBtn');
+
+              aparelhoRef.once('value').then(snapshot => {
+                const aparelhoData = snapshot.val();
+                finalizarDetails.innerHTML = `
+                  <p><strong>Cliente:</strong> ${aparelhoData.cliente || ''}</p>
+                  <p><strong>Data/Hora:</strong> ${aparelhoData.dataHora || ''}</p>
+                  <p><strong>Modelo:</strong> ${aparelhoData.modelo || ''}</p>
+                  <p><strong>Problema:</strong> ${aparelhoData.problema || ''}</p>
+                  <p><strong>Responsável Entrada:</strong> ${aparelhoData.responsavelEntrada || ''}</p>
+                `;
               });
-  
-              deleteBtn.addEventListener('click', () => {
-                if (confirm('Tem certeza que deseja excluir este aparelho?')) {
-                  const aparelhoRef = database.ref('entrada/' + key);
-                  aparelhoRef.remove();
-                }
-              });
-  
-              statusSelect.addEventListener('change', (event) => {
-                const newStatus = event.target.value;
-                const aparelhoId = event.target.getAttribute('data-id');
-                const aparelhoRef = database.ref('entrada/' + aparelhoId);
-                const saidasRef = database.ref('saidas');
-  
-                if (newStatus === 'finalizado') {
-                  // Show confirmation modal
-                  const confirmModal = document.getElementById('confirmFinalizarModal');
-                  const finalizarDetails = document.getElementById('finalizarDetails');
-                  const confirmBtn = document.getElementById('confirmFinalizarBtn');
-                  const cancelBtn = document.getElementById('cancelFinalizarBtn');
-  
-                  // Show aparelho details in modal
-                  aparelhoRef.once('value').then(snapshot => {
-                    const aparelhoData = snapshot.val();
-                    finalizarDetails.innerHTML = `
-                      <p><strong>Cliente:</strong> ${aparelhoData.cliente || ''}</p>
-                      <p><strong>Data/Hora:</strong> ${aparelhoData.dataHora || ''}</p>
-                      <p><strong>Modelo:</strong> ${aparelhoData.modelo || ''}</p>
-                      <p><strong>Problema:</strong> ${aparelhoData.problema || ''}</p>
-                      <p><strong>Responsável Entrada:</strong> ${aparelhoData.responsavelEntrada || ''}</p>
-                    `;
-                  });
-  
-                  confirmModal.classList.remove('hidden');
-  
-                  // Handle confirm
-                    const onConfirm = () => {
-                    aparelhoRef.once('value').then(snapshot => {
-                      const aparelhoData = snapshot.val();
-                      if (aparelhoData) {
-                        // Add current date and time as exit timestamp
-                        const now = new Date();
-                        const formattedDateTime = now.toLocaleString('pt-BR', { hour12: false });
-                        aparelhoData.dataHoraSaida = formattedDateTime;
-  
-                        // Get valorCobrado input value
-                        const valorCobradoInput = document.getElementById('valorCobrado');
-                        const valorCobrado = valorCobradoInput ? parseFloat(valorCobradoInput.value) : null;
-                        if (valorCobrado !== null && !isNaN(valorCobrado) && valorCobrado >= 0) {
-                          aparelhoData.valorCobrado = valorCobrado;
-                        }
-  
-                        saidasRef.push(aparelhoData).then(() => {
-                          aparelhoRef.remove();
-                          confirmModal.classList.add('hidden');
-                          confirmBtn.removeEventListener('click', onConfirm);
-                          cancelBtn.removeEventListener('click', onCancel);
-                        });
-                      }
+
+              confirmModal.classList.remove('hidden');
+
+              const onConfirm = () => {
+                aparelhoRef.once('value').then(snapshot => {
+                  const aparelhoData = snapshot.val();
+                  if (aparelhoData) {
+                    const now = new Date();
+                    const formattedDateTime = now.toLocaleString('pt-BR', { hour12: false });
+                    aparelhoData.dataHoraSaida = formattedDateTime;
+
+                    const valorCobradoInput = document.getElementById('valorCobrado');
+                    const valorCobrado = valorCobradoInput ? parseFloat(valorCobradoInput.value) : null;
+                    if (valorCobrado !== null && !isNaN(valorCobrado) && valorCobrado >= 0) {
+                      aparelhoData.valorCobrado = valorCobrado;
+                    }
+
+                    saidasRef.push(aparelhoData).then(() => {
+                      aparelhoRef.remove();
+                      confirmModal.classList.add('hidden');
+                      confirmBtn.removeEventListener('click', onConfirm);
+                      cancelBtn.removeEventListener('click', onCancel);
                     });
-                  };
-  
-                  // Handle cancel
-                  const onCancel = () => {
-                    confirmModal.classList.add('hidden');
-                    statusSelect.value = a.status?.toLowerCase() || 'aguardando conserto';
-                  confirmBtn.removeEventListener('click', onConfirm);
-                  cancelBtn.removeEventListener('click', onCancel);
-                };
-  
-                  confirmBtn.addEventListener('click', onConfirm);
-                  cancelBtn.addEventListener('click', onCancel);
-                } else {
-                  // Update status in 'entrada'
-                  aparelhoRef.update({ status: newStatus });
-                }
-              });
-            });
+                  }
+                });
+              };
+
+              const onCancel = () => {
+                confirmModal.classList.add('hidden');
+                statusSelect.value = a.status?.toLowerCase() || 'aguardando conserto';
+                confirmBtn.removeEventListener('click', onConfirm);
+                cancelBtn.removeEventListener('click', onCancel);
+              };
+
+              confirmBtn.addEventListener('click', onConfirm);
+              cancelBtn.addEventListener('click', onCancel);
+            } else {
+              aparelhoRef.update({ status: newStatus });
+            }
+          });
+        });
       } else {
         cardsContainer.innerHTML = '<p class="text-gray-500">Nenhum aparelho encontrado.</p>';
       }
+    });
+
+    // Function to open edit modal and populate with current data
+    function openEditModal(key) {
+      currentEditKey = key;
+      const aparelhoRef = database.ref('entrada/' + key);
+      aparelhoRef.once('value').then(snapshot => {
+        const data = snapshot.val();
+        if (data) {
+          editNome.value = data.nome || '';
+          editModelo.value = data.modelo || '';
+          editCliente.value = data.cliente || '';
+          editProblema.value = data.problema || '';
+          editModal.classList.remove('hidden');
+        }
+      });
+    }
+
+    // Close edit modal
+    cancelEditBtn.addEventListener('click', () => {
+      editModal.classList.add('hidden');
+      currentEditKey = null;
+    });
+
+    // Handle edit form submission
+    editForm.addEventListener('submit', (e) => {
+      e.preventDefault();
+      if (!currentEditKey) return;
+
+      const updatedData = {
+        nome: editNome.value.trim(),
+        modelo: editModelo.value.trim(),
+        cliente: editCliente.value.trim(),
+        problema: editProblema.value.trim()
+      };
+
+      const aparelhoRef = database.ref('entrada/' + currentEditKey);
+      aparelhoRef.update(updatedData).then(() => {
+        editModal.classList.add('hidden');
+        currentEditKey = null;
+      }).catch((error) => {
+        alert('Erro ao atualizar o aparelho: ' + error.message);
+      });
     });
 
     // Toggle user submenu visibility on click
@@ -360,140 +435,6 @@
     let currentAparelhoRef = null;
     let currentStatusSelect = null;
     let currentAparelhoData = null;
-
-    aparelhosRef.off('value'); // Remove previous listener to avoid duplication
-
-    aparelhosRef.on('value', (snapshot) => {
-      const aparelhos = snapshot.val();
-      cardsContainer.innerHTML = '';
-
-      if (aparelhos) {
-        Object.entries(aparelhos).forEach(([key, a]) => {
-          const card = document.createElement('div');
-          card.className = 'bg-white border border-gray-300 rounded-lg p-4 shadow hover:shadow-lg transition cursor-pointer';
-          card.innerHTML = `
-            <h3 class="text-blue-500 text-xl font-bold mb-2">${a.nome || 'Aparelho'}</h3>
-            <p><strong>Modelo:</strong> ${a.modelo || 'Desconhecido'}</p>
-            <p><strong>Cliente:</strong> ${a.cliente || 'Desconhecido'}</p>
-            <p><strong>Problema:</strong> ${a.problema || 'Desconhecido'}</p>
-            <label for="statusSelect${key}" class="block font-semibold mt-2">Status:</label>
-<select id="statusSelect${key}" class="w-full border border-gray-300 rounded-md p-2" data-id="${key}">
-  <option value="aguardando conserto" ${a.status?.toLowerCase() === 'aguardando conserto' ? 'selected' : ''}>Aguardando conserto</option>
-  <option value="em andamento" ${a.status?.toLowerCase() === 'em andamento' ? 'selected' : ''}>Em andamento</option>
-  <option value="aguardando retirada" ${a.status?.toLowerCase() === 'aguardando retirada' ? 'selected' : ''}>Aguardando retirada</option>
-  <option value="finalizado" ${a.status?.toLowerCase() === 'finalizado' ? 'selected' : ''}>Finalizado</option>
-</select>
-          `;
-          cardsContainer.appendChild(card);
-
-          const statusSelect = card.querySelector(`#statusSelect${key}`);
-
-          statusSelect.addEventListener('change', (event) => {
-            const newStatus = event.target.value;
-            const aparelhoId = event.target.getAttribute('data-id');
-            currentAparelhoRef = database.ref('aparelhos/' + aparelhoId);
-            currentStatusSelect = event.target;
-
-            if (newStatus === 'finalizado') {
-              // Show confirmation modal
-              confirmModal.classList.remove('hidden');
-              observacaoInput.value = '';
-              pecaSelect.value = '';
-              quantidadeInput.value = 1;
-
-              // Show aparelho details in modal
-              currentAparelhoRef.once('value').then(snapshot => {
-                currentAparelhoData = snapshot.val();
-                const finalizarDetails = document.getElementById('finalizarDetails');
-                finalizarDetails.innerHTML = `
-                  <p><strong>Cliente:</strong> ${currentAparelhoData.cliente || ''}</p>
-                  <p><strong>Data/Hora:</strong> ${currentAparelhoData.dataHora || ''}</p>
-                  <p><strong>Modelo:</strong> ${currentAparelhoData.modelo || ''}</p>
-                  <p><strong>Problema:</strong> ${currentAparelhoData.problema || ''}</p>
-                  <p><strong>Responsável Entrada:</strong> ${currentAparelhoData.responsavelEntrada || ''}</p>
-                `;
-              });
-            } else {
-              // Update status in 'aparelhos'
-              currentAparelhoRef = database.ref('aparelhos/' + aparelhoId);
-              currentAparelhoRef.update({ status: newStatus });
-            }
-          });
-        });
-      } else {
-        cardsContainer.innerHTML = '<p class="text-gray-500">Nenhum aparelho encontrado.</p>';
-      }
-    });
-
-    const onConfirm = () => {
-      if (!currentAparelhoData || !currentAparelhoRef) return;
-
-      const observacao = observacaoInput.value.trim();
-      const pecaKey = pecaSelect.value;
-      const quantidadeUsada = parseInt(quantidadeInput.value, 10);
-      const valorCobrado = parseFloat(document.getElementById('valorCobrado').value);
-
-      if (pecaKey && (isNaN(quantidadeUsada) || quantidadeUsada < 1)) {
-        alert('Quantidade utilizada inválida.');
-        return;
-      }
-
-      if (!isNaN(valorCobrado) && valorCobrado < 0) {
-        alert('Valor cobrado inválido.');
-        return;
-      }
-
-      // Add current date and time as exit timestamp
-      const now = new Date();
-      const formattedDateTime = now.toLocaleString('pt-BR', { hour12: false });
-      currentAparelhoData.dataHoraSaida = formattedDateTime;
-
-      // Add observacao to saida data
-      if (observacao) {
-        currentAparelhoData.observacao = observacao;
-      }
-
-      // Add valor cobrado to saida data
-      if (!isNaN(valorCobrado)) {
-        currentAparelhoData.valorCobrado = valorCobrado;
-      }
-
-      // Add used part info
-      if (pecaKey) {
-        currentAparelhoData.pecaUtilizada = pecaKey;
-        currentAparelhoData.quantidadeUtilizada = quantidadeUsada;
-
-        // Update estoque quantity
-        const pecaRef = database.ref('estoque/' + pecaKey);
-        pecaRef.transaction((peca) => {
-          if (peca) {
-            if (!peca.quantidade && !peca.quantity) {
-              peca.quantidade = 0;
-              peca.quantity = 0;
-            }
-            if (peca.quantidade !== undefined) {
-              peca.quantidade = Math.max(peca.quantidade - quantidadeUsada, 0);
-            } else if (peca.quantity !== undefined) {
-              peca.quantity = Math.max(peca.quantity - quantidadeUsada, 0);
-            }
-          }
-          return peca;
-        });
-      }
-
-      saidasRef.push(currentAparelhoData).then(() => {
-        currentAparelhoRef.remove();
-        confirmModal.classList.add('hidden');
-        currentStatusSelect.value = 'finalizado';
-      });
-    };
-
-    const onCancel = () => {
-      confirmModal.classList.add('hidden');
-      if (currentStatusSelect && currentAparelhoData) {
-        currentStatusSelect.value = currentAparelhoData.status?.toLowerCase() || 'aguardando conserto';
-      }
-    };
 
     confirmBtn.addEventListener('click', onConfirm);
     cancelBtn.addEventListener('click', onCancel);
