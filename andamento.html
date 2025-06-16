@@ -214,11 +214,12 @@
             <p><strong>Cliente:</strong> ${a.cliente || 'Desconhecido'}</p>
             <p><strong>Problema:</strong> ${a.problema || 'Desconhecido'}</p>
             <label for="statusSelect${key}" class="block font-semibold mt-2">Status:</label>
-            <select id="statusSelect${key}" class="w-full border border-gray-300 rounded-md p-2" data-id="${key}">
-              <option value="aguardando conserto" ${a.status?.toLowerCase() === 'aguardando conserto' ? 'selected' : ''}>Aguardando conserto</option>
-              <option value="em andamento" ${a.status?.toLowerCase() === 'em andamento' ? 'selected' : ''}>Em andamento</option>
-              <option value="finalizado" ${a.status?.toLowerCase() === 'finalizado' ? 'selected' : ''}>Finalizado</option>
-            </select>
+<select id="statusSelect${key}" class="w-full border border-gray-300 rounded-md p-2" data-id="${key}">
+  <option value="aguardando conserto" ${a.status?.toLowerCase() === 'aguardando conserto' ? 'selected' : ''}>Aguardando conserto</option>
+  <option value="em andamento" ${a.status?.toLowerCase() === 'em andamento' ? 'selected' : ''}>Em andamento</option>
+  <option value="aguardando retirada" ${a.status?.toLowerCase() === 'aguardando retirada' ? 'selected' : ''}>Aguardando retirada</option>
+  <option value="finalizado" ${a.status?.toLowerCase() === 'finalizado' ? 'selected' : ''}>Finalizado</option>
+</select>
           `;
           cardsContainer.appendChild(card);
 
@@ -358,11 +359,12 @@
             <p><strong>Cliente:</strong> ${a.cliente || 'Desconhecido'}</p>
             <p><strong>Problema:</strong> ${a.problema || 'Desconhecido'}</p>
             <label for="statusSelect${key}" class="block font-semibold mt-2">Status:</label>
-            <select id="statusSelect${key}" class="w-full border border-gray-300 rounded-md p-2" data-id="${key}">
-              <option value="aguardando conserto" ${a.status?.toLowerCase() === 'aguardando conserto' ? 'selected' : ''}>Aguardando conserto</option>
-              <option value="em andamento" ${a.status?.toLowerCase() === 'em andamento' ? 'selected' : ''}>Em andamento</option>
-              <option value="finalizado" ${a.status?.toLowerCase() === 'finalizado' ? 'selected' : ''}>Finalizado</option>
-            </select>
+<select id="statusSelect${key}" class="w-full border border-gray-300 rounded-md p-2" data-id="${key}">
+  <option value="aguardando conserto" ${a.status?.toLowerCase() === 'aguardando conserto' ? 'selected' : ''}>Aguardando conserto</option>
+  <option value="em andamento" ${a.status?.toLowerCase() === 'em andamento' ? 'selected' : ''}>Em andamento</option>
+  <option value="aguardando retirada" ${a.status?.toLowerCase() === 'aguardando retirada' ? 'selected' : ''}>Aguardando retirada</option>
+  <option value="finalizado" ${a.status?.toLowerCase() === 'finalizado' ? 'selected' : ''}>Finalizado</option>
+</select>
           `;
           cardsContainer.appendChild(card);
 
