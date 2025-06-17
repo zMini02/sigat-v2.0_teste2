@@ -303,7 +303,7 @@
       serviceNumber++;
       localStorage.setItem('serviceNumber', serviceNumber);
 
-      doc.text(`MOSSORÓ, ${new Date().toLocaleDateString('pt-BR')}`, 10, y); y += 10;
+      // Removed the line containing "MOSSORÓ" as per user request
       doc.text(`Orçamento Nº ${serviceNumber}`, 10, y); y += 10;
 
       // Client Info Table
