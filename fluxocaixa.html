@@ -1,0 +1,747 @@
+<!DOCTYPE html>
+<html lang="pt-BR" class="dark">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Fluxo de Caixa</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet"/>
+  <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdn.sheetjs.com/xlsx-latest/package/dist/xlsx.full.min.js"></script>
+  <link rel="shortcut icon" href="favicongrow.png" type="image/x-icon">
+</head>
+<body class="bg-white min-h-screen flex flex-col">
+  <!-- Sidebar toggle button for small screens -->
+  <button id="sidebarToggle" class="md:hidden absolute top-4 left-4 z-50 p-2 rounded-md bg-blue-500 text-white focus:outline-none">
+    <svg class="h-6 w-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round">
+      <line x1="3" y1="12" x2="21" y2="12"></line>
+      <line x1="3" y1="6" x2="21" y2="6"></line>
+      <line x1="3" y1="18" x2="21" y2="18"></line>
+    </svg>
+  </button>
+  <div class="flex flex-1 min-h-screen">
+    <!-- Sidebar -->
+    <div id="sidebar" class="fixed inset-y-0 left-0 w-64 bg-blue-500 p-4 flex flex-col transform -translate-x-full md:translate-x-0 transition-transform duration-300 ease-in-out z-40">
+      <h2 class="text-white text-xl font-semibold mb-6 border-b border-blue-400 pb-2">Menu Principal</h2>
+      <nav class="flex flex-col space-y-3 flex-grow overflow-y-auto">
+        <a href="paginaprincipal.html" class="bg-blue-400 hover:bg-blue-600 text-white py-2 rounded-md flex items-center px-3">
+          <i class="fas fa-home text-lg mr-3"></i>
+          <span>Tela Inicial</span>
+        </a>
+        <a href="saidaaparelho.html" class="bg-blue-400 hover:bg-blue-600 text-white py-2 rounded-md flex items-center px-3">
+          <i class="fas fa-sign-in-alt text-lg mr-3"></i>
+          <span>Entrada de celular</span>
+        </a>
+        <a href="andamento.html" class="bg-blue-400 hover:bg-blue-600 text-white py-2 rounded-md flex items-center px-3">
+          <i class="fas fa-tasks text-lg mr-3"></i>
+          <span>Andamento</span>
+        </a>
+        <a href="ordemservico.html" class="bg-blue-400 hover:bg-blue-600 text-white py-2 rounded-md flex items-center px-3">
+          <i class="fas fa-file-alt text-lg mr-3"></i>
+          <span>Criar Ordem de Serviço</span>
+        </a>
+        <a href="orcamento.html" class="bg-blue-400 hover:bg-blue-600 text-white py-2 rounded-md flex items-center px-3">
+          <i class="fas fa-calculator text-lg mr-3"></i>
+          <span>Criar Orçamento</span>
+        </a>
+        <a href="usuarios.html" class="bg-blue-400 hover:bg-blue-600 text-white py-2 rounded-md flex items-center px-3">
+          <i class="fas fa-users text-lg mr-3"></i>
+          <span>Usuários</span>
+        </a>
+        <a href="dadosempresa.html" class="bg-blue-400 hover:bg-blue-600 text-white py-2 rounded-md flex items-center px-3">
+          <i class="fas fa-building text-lg mr-3"></i>
+          <span>Cadastrar Empresa</span>
+        </a>
+        <a href="garantia.html" class="bg-blue-400 hover:bg-blue-600 text-white py-2 rounded-md flex items-center px-3">
+          <i class="fas fa-shield-alt text-lg mr-3"></i>
+          <span>Gerar Garantia</span>
+        </a>
+        <a href="estoque.html" class="bg-blue-400 hover:bg-blue-600 text-white py-2 rounded-md flex items-center px-3">
+          <i class="fas fa-cog text-lg mr-3"></i>
+          <span>Estoque de peças</span>
+        </a>
+        <!-- Nova opção de Fluxo de Caixa -->
+        <a href="fluxodecaixa.html" class="bg-blue-400 hover:bg-blue-600 text-white py-2 rounded-md flex items-center px-3">
+          <i class="fas fa-cash-register text-lg mr-3"></i>
+          <span>Fluxo de Caixa</span>
+        </a>
+        <div class="border-t border-blue-400 my-4"></div>
+        <a href="historicodesaidas.html" class="bg-blue-400 hover:bg-blue-600 text-white py-2 rounded-md flex items-center px-3">
+          <i class="fas fa-history text-lg mr-3"></i>
+          <span>Históricos de Saída</span>
+        </a>
+          <a href="index.html" class="bg-blue-400 hover:bg-blue-600 text-white py-2 rounded-md flex items-center px-3">
+            <i class="fas fa-sign-out-alt text-lg mr-3"></i>
+            <span>Sair</span>
+          </a>
+      </nav>
+    </div>
+
+    <!-- Main Content -->
+    <div id="mainContent" class="flex-1 p-4 overflow-auto md:ml-64">
+      <div class="flex items-center mb-4 justify-center relative">
+        <button id="menuToggle" class="md:hidden text-blue-500 focus:outline-none absolute left-0">
+          <i class="fas fa-bars text-3xl"></i>
+        </button>
+        <img alt="Logo" class="h-10 mx-auto" src="logoprincipal.png"/>
+        <div class="relative flex items-center space-x-4 absolute right-0">
+          <i class="fas fa-bell text-blue-500 text-2xl"></i>
+          <div id="userMenu" class="relative cursor-pointer">
+            <i class="fas fa-user-circle text-blue-500 text-2xl"></i>
+            <div id="userSubmenu" class="hidden absolute right-0 mt-2 w-48 bg-white border border-gray-300 rounded-md shadow-lg z-50">
+              <a href="usuarios.html" class="block px-4 py-2 text-gray-700 hover:bg-gray-100">Editar Perfil</a>
+              <a href="#" class="block px-4 py-2 text-gray-700 hover:bg-gray-100">Chamar Suporte</a>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Fluxo de Caixa Content -->
+      <h1 class="text-3xl font-bold mb-6 text-center text-gray-900">Dashboard de Fluxo de Caixa</h1>
+      <!-- Cards -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6 mb-8">
+        <div class="bg-green-500 rounded-lg p-6 shadow-lg">
+          <h2 class="text-lg font-semibold mb-2 text-white">Entradas</h2>
+          <p id="totalEntradas" class="text-2xl font-bold text-white">R$ 0,00</p>
+        </div>
+        <div class="bg-red-500 rounded-lg p-6 shadow-lg">
+          <h2 class="text-lg font-semibold mb-2 text-white">Saídas</h2>
+          <p id="totalSaidas" class="text-2xl font-bold text-white">R$ 0,00</p>
+        </div>
+        <div class="bg-blue-500 rounded-lg p-6 shadow-lg">
+          <h2 class="text-lg font-semibold mb-2 text-white">Saldo</h2>
+          <p id="saldo" class="text-2xl font-bold text-white">R$ 0,00</p>
+        </div>
+        <div class="bg-blue-500 rounded-lg p-6 shadow-lg">
+          <h2 class="text-lg font-semibold mb-2 text-white">Lançamentos</h2>
+          <p id="numLancamentos" class="text-2xl font-bold text-white">0</p>
+        </div>
+      </div>
+      <!-- Botões -->
+      <div class="flex justify-center gap-4 mb-8">
+        <button id="btnEntrada" class="bg-green-600 hover:bg-green-700 rounded-md px-6 py-3 text-white font-semibold">Entrada</button>
+        <button id="btnSaida" class="bg-red-600 hover:bg-red-700 rounded-md px-6 py-3 text-white font-semibold">Saída</button>
+        <button id="btnCadastrarContasMain" class="bg-yellow-600 hover:bg-yellow-700 rounded-md px-6 py-3 text-white font-semibold">Cadastrar Contas a Pagar</button>
+      </div>
+      <!-- Gráficos -->
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-8">
+        <div class="bg-blue-500 rounded-lg p-4 shadow-lg">
+          <h3 class="text-xl font-semibold mb-4 text-white">Entradas e Saídas por Dia</h3>
+          <canvas id="barChart" class="w-full h-64"></canvas>
+        </div>
+        <div class="bg-blue-500 rounded-lg p-4 shadow-lg">
+          <h3 class="text-xl font-semibold mb-4 text-white">Categorias</h3>
+          <canvas id="pieChart" class="w-full h-64"></canvas>
+        </div>
+        <div class="bg-blue-500 rounded-lg p-4 shadow-lg">
+          <h3 class="text-xl font-semibold mb-4 text-white">Evolução do Saldo</h3>
+          <canvas id="lineChart" class="w-full h-64"></canvas>
+        </div>
+      </div>
+      <!-- Botões para baixar relatórios -->
+      <div class="flex justify-end mb-4 space-x-4">
+        <button id="exportExcel" class="bg-blue-600 hover:bg-blue-700 rounded-md px-4 py-2 text-white font-semibold flex items-center">
+          Baixar Relatório Detalhado
+          <i class="fas fa-file-excel ml-2"></i>
+        </button>
+        <button id="exportPDF" class="bg-red-600 hover:bg-red-700 rounded-md px-4 py-2 text-white font-semibold flex items-center">
+          Baixar Relatório PDF
+          <i class="fas fa-file-pdf ml-2"></i>
+        </button>
+      </div>
+      <!-- Tabela -->
+      <div class="bg-blue-500 rounded-lg p-4 shadow-lg overflow-x-auto mt-8">
+        <h3 class="text-xl font-semibold mb-4 text-white">Fluxo de Caixa</h3>
+        <table class="min-w-full table-auto border-collapse border border-white text-white">
+          <thead>
+            <tr class="bg-blue-500">
+              <th class="border border-white px-4 py-2 text-left">Tipo</th>
+              <th class="border border-white px-4 py-2 text-left">Valor</th>
+              <th class="border border-white px-4 py-2 text-left">Nome do Produto</th>
+              <th class="border border-white px-4 py-2 text-left">Código</th>
+              <th class="border border-white px-4 py-2 text-left">Descrição</th>
+              <th class="border border-white px-4 py-2 text-left">Data</th>
+            </tr>
+          </thead>
+          <tbody id="fluxoTableBody"></tbody>
+        </table>
+      </div>
+
+      <!-- Contas a Pagar Próximas ao Vencimento -->
+      <div class="bg-yellow-500 rounded-lg p-4 shadow-lg overflow-x-auto mt-8">
+        <h3 class="text-xl font-semibold mb-4 text-white">Contas a Pagar - Próximas ao Vencimento</h3>
+        <table class="min-w-full table-auto border-collapse border border-white text-white">
+          <thead>
+            <tr class="bg-yellow-500">
+              <th class="border border-white px-4 py-2 text-left">Nome da Conta</th>
+              <th class="border border-white px-4 py-2 text-left">Descrição</th>
+              <th class="border border-white px-4 py-2 text-left">Valor</th>
+              <th class="border border-white px-4 py-2 text-left">Data de Vencimento</th>
+            </tr>
+          </thead>
+          <tbody id="contasProximasVencimento"></tbody>
+        </table>
+      </div>
+
+      <!-- Contas a Pagar Vencendo Hoje -->
+      <div class="bg-red-500 rounded-lg p-4 shadow-lg overflow-x-auto mt-8">
+        <h3 class="text-xl font-semibold mb-4 text-white">Contas a Pagar - Vencendo Hoje</h3>
+        <table class="min-w-full table-auto border-collapse border border-white text-white">
+          <thead>
+            <tr class="bg-red-500">
+              <th class="border border-white px-4 py-2 text-left">Nome da Conta</th>
+              <th class="border border-white px-4 py-2 text-left">Descrição</th>
+              <th class="border border-white px-4 py-2 text-left">Valor</th>
+              <th class="border border-white px-4 py-2 text-left">Data de Vencimento</th>
+            </tr>
+          </thead>
+          <tbody id="contasVencendoHoje"></tbody>
+        </table>
+      </div>
+
+      <!-- Contas a Pagar Vencidas -->
+      <div class="bg-gray-700 rounded-lg p-4 shadow-lg overflow-x-auto mt-8 mb-8">
+        <h3 class="text-xl font-semibold mb-4 text-white">Contas a Pagar - Vencidas</h3>
+        <table class="min-w-full table-auto border-collapse border border-white text-white">
+          <thead>
+            <tr class="bg-gray-700">
+              <th class="border border-white px-4 py-2 text-left">Nome da Conta</th>
+              <th class="border border-white px-4 py-2 text-left">Descrição</th>
+              <th class="border border-white px-4 py-2 text-left">Valor</th>
+              <th class="border border-white px-4 py-2 text-left">Data de Vencimento</th>
+            </tr>
+          </thead>
+          <tbody id="contasVencidas"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal de Entrada/Saída -->
+  <div id="modalFluxo" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden z-50">
+    <div class="bg-white rounded-lg shadow-lg p-6 w-full max-w-md relative">
+      <h2 id="modalFluxoTitle" class="text-2xl font-bold mb-4 text-blue-600">Nova Entrada</h2>
+      <form id="formFluxo" class="space-y-4">
+        <div>
+          <label class="block text-gray-700 font-semibold mb-1">Valor</label>
+          <input type="number" step="0.01" min="0" id="valorFluxo" required class="w-full border border-gray-300 rounded px-3 py-2"/>
+        </div>
+        <div>
+          <label class="block text-gray-700 font-semibold mb-1">Nome do Produto</label>
+          <input type="text" id="produtoFluxo" required class="w-full border border-gray-300 rounded px-3 py-2"/>
+        </div>
+        <div>
+          <label class="block text-gray-700 font-semibold mb-1">Código do Produto (opcional)</label>
+          <input type="text" id="codigoFluxo" class="w-full border border-gray-300 rounded px-3 py-2"/>
+        </div>
+        <div>
+          <label class="block text-gray-700 font-semibold mb-1">Descrição</label>
+          <input type="text" id="descFluxo" required class="w-full border border-gray-300 rounded px-3 py-2"/>
+        </div>
+        <div>
+          <label class="block text-gray-700 font-semibold mb-1">Data</label>
+          <input type="date" id="dataFluxo" required class="w-full border border-gray-300 rounded px-3 py-2"/>
+        </div>
+        <div class="flex justify-end space-x-4 mt-6">
+          <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">Salvar</button>
+          <button type="button" id="cancelarFluxo" class="bg-gray-300 text-gray-700 px-4 py-2 rounded hover:bg-gray-400">Cancelar</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal de Cadastro de Contas a Pagar -->
+  <div id="modalContas" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden z-50">
+    <div class="bg-white rounded-lg shadow-lg p-6 w-full max-w-md relative">
+      <h2 class="text-2xl font-bold mb-4 text-blue-600">Cadastrar Contas a Pagar</h2>
+      <form id="formContas" class="space-y-4">
+        <div>
+          <label class="block text-gray-700 font-semibold mb-1">Nome da Conta</label>
+          <input type="text" id="nomeConta" required class="w-full border border-gray-300 rounded px-3 py-2"/>
+        </div>
+        <div>
+          <label class="block text-gray-700 font-semibold mb-1">Descrição</label>
+          <input type="text" id="descricaoConta" required class="w-full border border-gray-300 rounded px-3 py-2"/>
+        </div>
+        <div>
+          <label class="block text-gray-700 font-semibold mb-1">Valor</label>
+          <input type="number" step="0.01" min="0" id="valorConta" required class="w-full border border-gray-300 rounded px-3 py-2"/>
+        </div>
+        <div>
+          <label class="block text-gray-700 font-semibold mb-1">Data de Vencimento</label>
+          <input type="date" id="dataVencimentoConta" required class="w-full border border-gray-300 rounded px-3 py-2"/>
+        </div>
+        <div class="flex justify-end space-x-4 mt-6">
+          <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">Salvar</button>
+          <button type="button" id="cancelarContas" class="bg-gray-300 text-gray-700 px-4 py-2 rounded hover:bg-gray-400">Cancelar</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
+  <script>
+  // Firebase config
+  const firebaseConfig = {
+    apiKey: "AIzaSyCQKl609mQW396iquVz3mmgONZ859kIo9w",
+    authDomain: "granjateste-c47d2.firebaseapp.com",
+    databaseURL: "https://granjateste-c47d2-default-rtdb.firebaseio.com",
+    projectId: "granjateste-c47d2",
+    storageBucket: "granjateste-c47d2.firebasestorage.app",
+    messagingSenderId: "177358318142",
+    appId: "1:177358318142:web:7df0d4582d346f80b93f6f",
+    measurementId: "G-XEM6J8Z4CS"
+  };
+  if (!firebase.apps.length) {
+    firebase.initializeApp(firebaseConfig);
+  }
+  const db = firebase.database();
+
+  let fluxoData = [];
+  let contasData = [];
+
+  function listenFluxoCaixa() {
+    // Listen to 'fluxoCaixa', 'entrada', and 'saidas' nodes and combine data
+    const fluxoCaixaRef = db.ref('fluxoCaixa');
+    const entradaRef = db.ref('entrada');
+    const saidasRef = db.ref('saidas');
+    const vendasAcessoriosRef = db.ref('vendasacessorios');
+
+    let fluxoCaixaData = [];
+    let entradaData = [];
+    let saidasData = [];
+    let vendasAcessoriosData = [];
+
+    fluxoCaixaRef.on('value', snapshot => {
+      const data = snapshot.val();
+      fluxoCaixaData = data ? Object.values(data) : [];
+      combineAndRender();
+    });
+
+    entradaRef.on('value', snapshot => {
+      const data = snapshot.val();
+      entradaData = data ? Object.values(data) : [];
+      combineAndRender();
+    });
+
+    saidasRef.on('value', snapshot => {
+      const data = snapshot.val();
+      saidasData = data ? Object.values(data) : [];
+      combineAndRender();
+    });
+
+    vendasAcessoriosRef.on('value', snapshot => {
+      const data = snapshot.val();
+      vendasAcessoriosData = data ? Object.values(data) : [];
+      combineAndRender();
+    });
+
+    function combineAndRender() {
+      // Normalize fluxoCaixaData: keep as is, it has tipo, valor, produto, codigo, descricao, data
+      // Normalize entradaData: all are entries, map to have tipo: 'entrada', valor from valorCobrado, produto, codigo, descricao, data
+      const normalizedEntrada = entradaData.map(item => ({
+        tipo: 'entrada',
+        valor: Number(item.valorCobrado) || 0,
+        produto: item.modelo || '',
+        codigo: item.codigo || '',
+        descricao: item.problema || '',
+        data: item.dataHoraEntrada || ''
+      }));
+
+      // Normalize saidasData: all are entries, map to have tipo: 'entrada', valor from valorCobrado, produto, codigo, descricao, data
+      const normalizedSaidas = saidasData.map(item => ({
+        tipo: 'entrada',
+        valor: Number(item.valorCobrado) || 0,
+        produto: item.modelo || '',
+        codigo: item.codigo || '',
+        descricao: item.problema || '',
+        data: item.dataHoraSaida || ''
+      }));
+
+      // Normalize vendasAcessoriosData: map to have tipo: 'entrada', valor from valorUnitario, produto from nome, data from dataVenda
+      const normalizedVendasAcessorios = vendasAcessoriosData.map(item => ({
+        tipo: 'entrada',
+        valor: Number(item.valorUnitario) || 0,
+        produto: item.nome || '',
+        codigo: '',
+        descricao: '',
+        data: item.dataVenda || ''
+      }));
+
+      fluxoData = [...fluxoCaixaData, ...normalizedEntrada, ...normalizedSaidas, ...normalizedVendasAcessorios];
+      updateDashboard();
+      renderFluxoTable();
+    }
+  }
+
+
+
+  function formatCurrency(value) {
+    return Number(value).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+  }
+
+  function updateDashboard() {
+    let totalEntradas = 0, totalSaidas = 0, saldo = 0;
+    fluxoData.forEach(item => {
+      if (item.tipo === 'entrada') {
+        totalEntradas += Number(item.valor) || 0;
+      } else if (item.tipo === 'saida') {
+        totalSaidas += Number(item.valor) || 0;
+      }
+    });
+    saldo = totalEntradas - totalSaidas;
+    document.getElementById('totalEntradas').textContent = formatCurrency(totalEntradas);
+    document.getElementById('totalSaidas').textContent = formatCurrency(totalSaidas);
+    document.getElementById('saldo').textContent = formatCurrency(saldo);
+    document.getElementById('numLancamentos').textContent = fluxoData.length;
+    updateCharts();
+  }
+
+  function renderFluxoTable() {
+    const tbody = document.getElementById('fluxoTableBody');
+    tbody.innerHTML = '';
+    fluxoData
+      .sort((a, b) => (b.data || '').localeCompare(a.data || ''))
+      .forEach(item => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td class="px-4 py-2">${item.tipo === 'entrada' ? 'Entrada' : 'Saída'}</td>
+          <td class="px-4 py-2">${formatCurrency(item.valor)}</td>
+          <td class="px-4 py-2">${item.produto || ''}</td>
+          <td class="px-4 py-2">${item.codigo || ''}</td>
+          <td class="px-4 py-2">${item.descricao || ''}</td>
+          <td class="px-4 py-2">${item.data || ''}</td>
+        `;
+        tbody.appendChild(tr);
+      });
+  }
+
+  let barChart, pieChart, lineChart;
+  function initCharts() {
+    barChart = new Chart(document.getElementById('barChart').getContext('2d'), {
+      type: 'bar',
+      data: { labels: [], datasets: [
+        { label: 'Entradas', data: [], backgroundColor: 'rgba(16,185,129,0.7)' },
+        { label: 'Saídas', data: [], backgroundColor: 'rgba(239,68,68,0.7)' }
+      ] },
+      options: { responsive: true, plugins: { legend: { labels: { color: 'white' } } }, scales: { x: { ticks: { color: 'white' } }, y: { ticks: { color: 'white' } } } }
+    });
+    pieChart = new Chart(document.getElementById('pieChart').getContext('2d'), {
+      type: 'pie',
+      data: { labels: [], datasets: [{ data: [], backgroundColor: ['#10b981','#ef4444','#3b82f6','#f59e0b','#8b5cf6','#ec4899','#14b8a6','#f97316'] }] },
+      options: { responsive: true, plugins: { legend: { labels: { color: 'white' } } } }
+    });
+    lineChart = new Chart(document.getElementById('lineChart').getContext('2d'), {
+      type: 'line',
+      data: { labels: [], datasets: [{ label: 'Saldo', data: [], borderColor: 'white', backgroundColor: 'rgba(59,130,246,0.2)', fill: true }] },
+      options: { responsive: true, plugins: { legend: { labels: { color: 'white' } } }, scales: { x: { ticks: { color: 'white' } }, y: { ticks: { color: 'white' } } } }
+    });
+  }
+
+  function updateCharts() {
+    const now = new Date();
+    const currentMonth = now.getMonth() + 1;
+    const currentYear = now.getFullYear();
+    const daysInMonth = new Date(currentYear, currentMonth, 0).getDate();
+    const entradasPorDia = Array(daysInMonth).fill(0);
+    const saidasPorDia = Array(daysInMonth).fill(0);
+
+    fluxoData.forEach(item => {
+      if (!item.data) return;
+      const [ano, mes, dia] = item.data.split('-');
+      if (Number(mes) === currentMonth && Number(ano) === currentYear) {
+        if (item.tipo === 'entrada') {
+          entradasPorDia[Number(dia) - 1] += Number(item.valor) || 0;
+        } else if (item.tipo === 'saida') {
+          saidasPorDia[Number(dia) - 1] += Number(item.valor) || 0;
+        }
+      }
+    });
+
+    barChart.data.labels = Array.from({length: daysInMonth}, (_, i) => (i + 1).toString());
+    barChart.data.datasets[0].data = entradasPorDia;
+    barChart.data.datasets[1].data = saidasPorDia;
+    barChart.update();
+
+    const categorias = {};
+    fluxoData.forEach(item => {
+      const cat = item.descricao || "Outro";
+      categorias[cat] = (categorias[cat] || 0) + (Number(item.valor) || 0);
+    });
+    pieChart.data.labels = Object.keys(categorias);
+    pieChart.data.datasets[0].data = Object.values(categorias);
+    pieChart.update();
+
+    const sorted = [...fluxoData].sort((a, b) => (a.data || '').localeCompare(b.data || ''));
+    const labels = [];
+    const saldoAcumulado = [];
+    let saldo = 0;
+    sorted.forEach(item => {
+      if (!item.data) return;
+      if (labels.length === 0 || labels[labels.length - 1] !== item.data) {
+        labels.push(item.data);
+        saldoAcumulado.push(saldo);
+      }
+      if (item.tipo === 'entrada') {
+        saldo += Number(item.valor) || 0;
+      } else if (item.tipo === 'saida') {
+        saldo -= Number(item.valor) || 0;
+      }
+      saldoAcumulado[saldoAcumulado.length - 1] = saldo;
+    });
+    lineChart.data.labels = labels;
+    lineChart.data.datasets[0].data = saldoAcumulado;
+    lineChart.update();
+  }
+
+  const btnEntrada = document.getElementById('btnEntrada');
+  const btnSaida = document.getElementById('btnSaida');
+  const modalFluxo = document.getElementById('modalFluxo');
+  const modalFluxoTitle = document.getElementById('modalFluxoTitle');
+  const formFluxo = document.getElementById('formFluxo');
+  const cancelarFluxo = document.getElementById('cancelarFluxo');
+  const valorFluxo = document.getElementById('valorFluxo');
+  const produtoFluxo = document.getElementById('produtoFluxo');
+  const codigoFluxo = document.getElementById('codigoFluxo');
+  const descFluxo = document.getElementById('descFluxo');
+  const dataFluxo = document.getElementById('dataFluxo');
+  let tipoFluxo = "entrada";
+
+  btnEntrada.addEventListener('click', () => {
+    tipoFluxo = "entrada";
+    modalFluxoTitle.textContent = "Nova Entrada";
+    formFluxo.reset();
+    dataFluxo.valueAsDate = new Date();
+    modalFluxo.classList.remove('hidden');
+  });
+
+  btnSaida.addEventListener('click', () => {
+    tipoFluxo = "saida";
+    modalFluxoTitle.textContent = "Nova Saída";
+    formFluxo.reset();
+    dataFluxo.valueAsDate = new Date();
+    modalFluxo.classList.remove('hidden');
+  });
+
+  cancelarFluxo.addEventListener('click', () => {
+    modalFluxo.classList.add('hidden');
+  });
+
+  formFluxo.addEventListener('submit', (e) => {
+    e.preventDefault();
+    const valor = parseFloat(valorFluxo.value);
+    const produto = produtoFluxo.value;
+    const codigo = codigoFluxo.value;
+    const descricao = descFluxo.value;
+    const data = dataFluxo.value;
+    if (!valor || !produto || !descricao || !data) {
+      alert("Preencha todos os campos obrigatórios!");
+      return;
+    }
+    db.ref('fluxoCaixa').push({
+      tipo: tipoFluxo,
+      valor,
+      produto,
+      codigo,
+      descricao,
+      data
+    }).then(() => {
+      modalFluxo.classList.add('hidden');
+    }).catch((err) => {
+      alert("Erro ao salvar: " + err.message);
+    });
+  });
+
+  document.getElementById('exportExcel').addEventListener('click', function() {
+    if (!fluxoData.length) {
+      alert('Nenhum lançamento para exportar.');
+      return;
+    }
+    const ws_data = [
+      ['Tipo', 'Valor', 'Nome do Produto', 'Código', 'Descrição', 'Data'],
+      ...fluxoData.map(item => [
+        item.tipo === 'entrada' ? 'Entrada' : 'Saída',
+        Number(item.valor) || 0,
+        item.produto || '',
+        item.codigo || '',
+        item.descricao || '',
+        item.data || ''
+      ])
+    ];
+    const ws = XLSX.utils.aoa_to_sheet(ws_data);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "Fluxo de Caixa");
+    XLSX.writeFile(wb, "relatorio_fluxo_caixa.xlsx");
+  });
+
+  // PDF export button event listener
+  document.getElementById('exportPDF').addEventListener('click', function() {
+    if (!fluxoData.length) {
+      alert('Nenhum lançamento para exportar.');
+      return;
+    }
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF();
+
+    doc.setFontSize(18);
+    doc.text('Relatório de Fluxo de Caixa', 14, 22);
+
+    const columns = ['Tipo', 'Valor', 'Nome do Produto', 'Código', 'Descrição', 'Data'];
+    const rows = fluxoData.map(item => [
+      item.tipo === 'entrada' ? 'Entrada' : 'Saída',
+      Number(item.valor).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }),
+      item.produto || '',
+      item.codigo || '',
+      item.descricao || '',
+      item.data || ''
+    ]);
+
+    doc.autoTable({
+      startY: 30,
+      head: [columns],
+      body: rows,
+      styles: { fontSize: 8 },
+      headStyles: { fillColor: [21, 101, 192] },
+      alternateRowStyles: { fillColor: [240, 240, 240] },
+      margin: { left: 14, right: 14 }
+    });
+
+    doc.save('relatorio_fluxo_caixa.pdf');
+  });
+
+  // Sidebar toggle script
+  const sidebarToggle = document.getElementById('sidebarToggle');
+  const sidebar = document.getElementById('sidebar');
+  const mainContent = document.getElementById('mainContent');
+
+  sidebarToggle.addEventListener('click', () => {
+    if (sidebar.classList.contains('-translate-x-full')) {
+      sidebar.classList.remove('-translate-x-full');
+      mainContent.classList.add('md:ml-64');
+    } else {
+      sidebar.classList.add('-translate-x-full');
+      mainContent.classList.remove('md:ml-64');
+    }
+  });
+
+  // User menu toggle
+  document.getElementById('userMenu').addEventListener('click', function(event) {
+    event.stopPropagation();
+    const submenu = document.getElementById('userSubmenu');
+    submenu.classList.toggle('hidden');
+  });
+
+  // Hide submenu if clicking outside
+  document.addEventListener('click', function() {
+    const submenu = document.getElementById('userSubmenu');
+    if (!submenu.classList.contains('hidden')) {
+      submenu.classList.add('hidden');
+    }
+  });
+
+    window.onload = () => {
+    initCharts();
+    listenFluxoCaixa();
+
+    function renderContas() {
+      const contasProximasVencimento = document.getElementById('contasProximasVencimento');
+      const contasVencendoHoje = document.getElementById('contasVencendoHoje');
+      const contasVencidas = document.getElementById('contasVencidas');
+
+      contasProximasVencimento.innerHTML = '';
+      contasVencendoHoje.innerHTML = '';
+      contasVencidas.innerHTML = '';
+
+      const hoje = new Date();
+      const hojeStr = hoje.toISOString().split('T')[0];
+
+      contasData.forEach(conta => {
+        const dataVenc = conta.dataVencimento || '';
+        if (!dataVenc) return;
+
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td class="border border-white px-4 py-2">${conta.nomeConta || ''}</td>
+          <td class="border border-white px-4 py-2">${conta.descricao || ''}</td>
+          <td class="border border-white px-4 py-2">${formatCurrency(conta.valor)}</td>
+          <td class="border border-white px-4 py-2">${dataVenc}</td>
+        `;
+
+        if (dataVenc > hojeStr) {
+          // Check if within next 7 days
+          const diffTime = new Date(dataVenc) - hoje;
+          const diffDays = diffTime / (1000 * 60 * 60 * 24);
+          if (diffDays <= 7) {
+            contasProximasVencimento.appendChild(tr);
+          }
+        } else if (dataVenc === hojeStr) {
+          contasVencendoHoje.appendChild(tr);
+        } else if (dataVenc < hojeStr) {
+          contasVencidas.appendChild(tr);
+        }
+      });
+    }
+
+    function listenContas() {
+      db.ref('contas').on('value', snapshot => {
+        const data = snapshot.val();
+        contasData = data ? Object.values(data) : [];
+        renderContas();
+      });
+    }
+
+    listenContas();
+
+    // Show modalContas on button click
+    const btnCadastrarContas = document.getElementById('btnCadastrarContas');
+    const btnCadastrarContasMain = document.getElementById('btnCadastrarContasMain');
+    const modalContas = document.getElementById('modalContas');
+    const cancelarContas = document.getElementById('cancelarContas');
+    const formContas = document.getElementById('formContas');
+
+    btnCadastrarContas.addEventListener('click', () => {
+      formContas.reset();
+      modalContas.classList.remove('hidden');
+    });
+
+    btnCadastrarContasMain.addEventListener('click', () => {
+      formContas.reset();
+      modalContas.classList.remove('hidden');
+    });
+
+    cancelarContas.addEventListener('click', () => {
+      modalContas.classList.add('hidden');
+    });
+
+    formContas.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const nomeConta = document.getElementById('nomeConta').value.trim();
+      const descricao = document.getElementById('descricaoConta').value.trim();
+      const valor = parseFloat(document.getElementById('valorConta').value);
+      const dataVencimento = document.getElementById('dataVencimentoConta').value;
+
+      if (!nomeConta || !descricao || !valor || !dataVencimento) {
+        alert('Preencha todos os campos obrigatórios!');
+        return;
+      }
+
+      db.ref('contas').push({
+        nomeConta,
+        descricao,
+        valor,
+        dataVencimento
+      }).then(() => {
+        alert('Conta a pagar cadastrada com sucesso!');
+        modalContas.classList.add('hidden');
+        formContas.reset();
+      }).catch((err) => {
+        alert('Erro ao salvar: ' + err.message);
+      });
+    });
+  };
+  </script>
+</body>
+</html>

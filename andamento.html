@@ -1,0 +1,443 @@
+<html lang="pt-BR">
+ <head>
+  <meta charset="utf-8"/>
+  <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+  <title>
+   Dashboard
+  </title>
+  <script src="https://cdn.tailwindcss.com"></script>
+      <link rel="shortcut icon" href="favicongrow.png" type="image/x-icon">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet"/>
+  <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
+ </head>
+  <body class="bg-white min-h-screen flex flex-col">
+  <button id="sidebarToggle" aria-label="Toggle sidebar" class="md:hidden absolute top-4 left-4 z-50 p-2 rounded-md bg-blue-500 text-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-600">
+    <svg class="h-6 w-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round">
+      <line x1="3" y1="12" x2="21" y2="12"></line>
+      <line x1="3" y1="6" x2="21" y2="6"></line>
+      <line x1="3" y1="18" x2="21" y2="18"></line>
+    </svg>
+  </button>
+  <div class="flex flex-1">
+   <!-- Sidebar -->
+   <div id="sidebar" class="fixed inset-y-0 left-0 w-64 bg-blue-500 p-4 flex flex-col transform -translate-x-full md:translate-x-0 transition-transform duration-300 ease-in-out z-40">
+      <h2 class="text-white text-xl font-semibold mb-6 border-b border-blue-400 pb-2">Menu Principal</h2>
+      <nav class="flex flex-col space-y-3 flex-grow overflow-y-auto">
+        <a href="paginaprincipal.html" class="bg-blue-400 hover:bg-blue-600 text-white py-2 rounded-md flex items-center px-3">
+          <i class="fas fa-home text-lg mr-3"></i>
+          <span>Tela Inicial</span>
+        </a>
+        <a href="saidaaparelho.html" class="bg-blue-400 hover:bg-blue-600 text-white py-2 rounded-md flex items-center px-3">
+          <i class="fas fa-sign-in-alt text-lg mr-3"></i>
+          <span>Entrada de celular</span>
+        </a>
+        <a href="andamento.html" class="bg-blue-400 hover:bg-blue-600 text-white py-2 rounded-md flex items-center px-3">
+          <i class="fas fa-tasks text-lg mr-3"></i>
+          <span>Andamento</span>
+        </a>
+        <a href="ordemservico.html" class="bg-blue-400 hover:bg-blue-600 text-white py-2 rounded-md flex items-center px-3">
+          <i class="fas fa-file-alt text-lg mr-3"></i>
+          <span>Criar Ordem de Serviço</span>
+        </a>
+        <a href="orcamento.html" class="bg-blue-400 hover:bg-blue-600 text-white py-2 rounded-md flex items-center px-3">
+          <i class="fas fa-calculator text-lg mr-3"></i>
+          <span>Criar Orçamento</span>
+        </a>
+        <a href="usuarios.html" class="bg-blue-400 hover:bg-blue-600 text-white py-2 rounded-md flex items-center px-3">
+          <i class="fas fa-users text-lg mr-3"></i>
+          <span>Usuários</span>
+        </a>
+        <a href="dadosempresa.html" class="bg-blue-400 hover:bg-blue-600 text-white py-2 rounded-md flex items-center px-3">
+          <i class="fas fa-building text-lg mr-3"></i>
+          <span>Cadastrar Empresa</span>
+        </a>
+        <a href="garantia.html" class="bg-blue-400 hover:bg-blue-600 text-white py-2 rounded-md flex items-center px-3">
+          <i class="fas fa-shield-alt text-lg mr-3"></i>
+          <span>Gerar Garantia</span>
+        </a>
+        <a href="estoque.html" class="bg-blue-400 hover:bg-blue-600 text-white py-2 rounded-md flex items-center px-3">
+          <i class="fas fa-cog text-lg mr-3"></i>
+          <span>Estoque de peças</span>
+        </a>
+        <!-- Nova opção de Fluxo de Caixa -->
+        <a href="fluxocaixa.html" class="bg-blue-400 hover:bg-blue-600 text-white py-2 rounded-md flex items-center px-3">
+          <i class="fas fa-cash-register text-lg mr-3"></i>
+          <span>Fluxo de Caixa</span>
+        </a>
+        <div class="border-t border-blue-400 my-4"></div>
+        <a href="historicodesaidas.html" class="bg-blue-400 hover:bg-blue-600 text-white py-2 rounded-md flex items-center px-3">
+          <i class="fas fa-history text-lg mr-3"></i>
+          <span>Históricos de Saída</span>
+        </a>
+        <a href="index.html" class="bg-blue-400 hover:bg-blue-600 text-white py-2 rounded-md flex items-center px-3">
+          <i class="fas fa-sign-out-alt text-lg mr-3"></i>
+          <span>Sair</span>
+        </a>
+      </nav>
+    </div>
+    <!-- Main Content -->
+    <div class="w-full md:w-5/6 p-4 md:ml-64">
+      <div class="flex justify-between items-center mb-4">
+        <div style="width: 64px;"></div>
+        <img alt="Logo" class="h-10" src="logoprincipal.png"/>
+        <div class="relative flex items-center space-x-4">
+          <i class="fas fa-bell text-blue-500 text-2xl"></i>
+          <div id="userMenu" class="relative cursor-pointer">
+            <i class="fas fa-user-circle text-blue-500 text-2xl"></i>
+            <div id="userSubmenu" class="hidden absolute right-0 mt-2 w-48 bg-white border border-gray-300 rounded-md shadow-lg z-50">
+              <a href="usuarios.html" class="block px-4 py-2 text-gray-700 hover:bg-gray-100">Editar Perfil</a>
+              <a href="#" class="block px-4 py-2 text-gray-700 hover:bg-gray-100">Chamar Suporte</a>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Sidebar toggle script
+    const sidebarToggle = document.getElementById('sidebarToggle');
+    const sidebar = document.getElementById('sidebar');
+    const mainContent = document.getElementById('mainContent');
+
+    sidebarToggle.addEventListener('click', () => {
+      if (sidebar.classList.contains('-translate-x-full')) {
+        sidebar.classList.remove('-translate-x-full');
+        mainContent.classList.add('md:ml-64');
+      } else {
+        sidebar.classList.add('-translate-x-full');
+        mainContent.classList.remove('md:ml-64');
+      }
+    });
+  </script>
+      </div>
+
+      <!-- Cards container -->
+      <div id="cardsContainer" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 mb-6"></div>
+
+      <!-- Modal de Seleção de Status -->
+      <div id="statusModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden">
+        <div class="bg-white rounded-lg p-6 w-full max-w-md">
+          <h2 class="text-blue-500 text-xl font-bold mb-4">Selecionar Status</h2>
+          <form id="statusForm" class="space-y-4">
+            <div>
+              <label for="status" class="block font-semibold mb-1">Status:</label>
+              <select id="status" name="status" class="w-full border border-gray-300 rounded-md p-2" required>
+                <option value="Em andamento">Em andamento</option>
+                <option value="Aguardando conserto">Aguardando conserto</option>
+                <option value="finalizar">Finalizar</option>
+              </select>
+            </div>
+            <div class="flex justify-end space-x-2">
+              <button type="button" id="closeStatusModalBtn" class="bg-gray-300 text-gray-700 py-2 px-4 rounded-md hover:bg-gray-400 transition">Cancelar</button>
+              <button type="submit" class="bg-blue-500 text-white py-2 px-4 rounded-md hover:bg-blue-600 transition">Salvar</button>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <!-- Modal de Confirmação de Finalização -->
+      <div id="confirmFinalizarModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden">
+        <div class="bg-white rounded-lg p-6 w-full max-w-md max-h-[80vh] overflow-auto">
+          <h2 class="text-red-500 text-xl font-bold mb-4">Confirmar Finalização</h2>
+          <div id="finalizarDetails" class="mb-4 text-gray-700 whitespace-pre-wrap"></div>
+          <div class="mb-4">
+            <label for="observacao" class="block font-semibold mb-1">Observação:</label>
+            <textarea id="observacao" class="w-full border border-gray-300 rounded-md p-2" rows="3" placeholder="Digite uma observação..."></textarea>
+          </div>
+          <div class="mb-4">
+            <label for="pecaUtilizada" class="block font-semibold mb-1">Peça Utilizada:</label>
+            <select id="pecaUtilizada" class="w-full border border-gray-300 rounded-md p-2">
+              <option value="">Selecione uma peça</option>
+            </select>
+          </div>
+          <div class="mb-4">
+            <label for="quantidadeUtilizada" class="block font-semibold mb-1">Quantidade Utilizada:</label>
+            <input type="number" id="quantidadeUtilizada" class="w-full border border-gray-300 rounded-md p-2" min="1" value="1"/>
+          </div>
+          <div class="mb-4">
+            <label for="valorCobrado" class="block font-semibold mb-1">Valor Cobrado:</label>
+            <input type="number" id="valorCobrado" class="w-full border border-gray-300 rounded-md p-2" min="0" step="0.01" placeholder="Digite o valor cobrado"/>
+          </div>
+          <div class="flex justify-end space-x-2">
+            <button id="cancelFinalizarBtn" class="bg-gray-300 text-gray-700 py-2 px-4 rounded-md hover:bg-gray-400 transition">Cancelar</button>
+            <button id="confirmFinalizarBtn" class="bg-red-500 text-white py-2 px-4 rounded-md hover:bg-red-600 transition">Confirmar</button>
+          </div>
+        </div>
+      </div>
+      </div>
+    </div>
+
+  <audio id="notificationSound" src="notification.mp3" preload="auto"></audio>
+
+  <!-- Modal de Edição -->
+  <div id="editModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden z-50">
+    <div class="bg-white rounded-lg p-6 w-full max-w-md max-h-[80vh] overflow-auto">
+      <h2 class="text-blue-500 text-xl font-bold mb-4">Editar Aparelho</h2>
+      <form id="editForm" class="space-y-4">
+        <div>
+          <label for="editNome" class="block font-semibold mb-1">Nome:</label>
+          <input type="text" id="editNome" name="nome" class="w-full border border-gray-300 rounded-md p-2" required />
+        </div>
+        <div>
+          <label for="editModelo" class="block font-semibold mb-1">Modelo:</label>
+          <input type="text" id="editModelo" name="modelo" class="w-full border border-gray-300 rounded-md p-2" required />
+        </div>
+        <div>
+          <label for="editCliente" class="block font-semibold mb-1">Cliente:</label>
+          <input type="text" id="editCliente" name="cliente" class="w-full border border-gray-300 rounded-md p-2" required />
+        </div>
+        <div>
+          <label for="editProblema" class="block font-semibold mb-1">Problema:</label>
+          <textarea id="editProblema" name="problema" class="w-full border border-gray-300 rounded-md p-2" rows="3" required></textarea>
+        </div>
+        <div class="flex justify-end space-x-2">
+          <button type="button" id="cancelEditBtn" class="bg-gray-300 text-gray-700 py-2 px-4 rounded-md hover:bg-gray-400 transition">Cancelar</button>
+          <button type="submit" class="bg-blue-500 text-white py-2 px-4 rounded-md hover:bg-blue-600 transition">Salvar</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script>
+const firebaseConfig = {
+  apiKey: "AIzaSyCQKl609mQW396iquVz3mmgONZ859kIo9w",
+  authDomain: "granjateste-c47d2.firebaseapp.com",
+  databaseURL: "https://granjateste-c47d2-default-rtdb.firebaseio.com",
+  projectId: "granjateste-c47d2",
+  storageBucket: "granjateste-c47d2.firebasestorage.app",
+  messagingSenderId: "177358318142",
+  appId: "1:177358318142:web:7df0d4582d346f80b93f6f",
+  measurementId: "G-XEM6J8Z4CS"
+};
+
+    const app = firebase.initializeApp(firebaseConfig);
+    const database = firebase.database();
+    const saidasRef = database.ref('saidas');
+
+    // Load notified keys from localStorage or initialize empty Set
+    const notifiedSaidas = new Set(JSON.parse(localStorage.getItem('notifiedSaidas') || '[]'));
+
+    saidasRef.on('child_added', (snapshot) => {
+      const key = snapshot.key;
+      if (!notifiedSaidas.has(key)) {
+        notifiedSaidas.add(key);
+        localStorage.setItem('notifiedSaidas', JSON.stringify(Array.from(notifiedSaidas)));
+        const saida = snapshot.val();
+        if (saida) showPopup(saida.modelo || 'Modelo não informado');
+      }
+    });
+
+    const entradaRef = database.ref('entrada');
+    const cardsContainer = document.getElementById('cardsContainer');
+
+    // Elements for edit modal
+    const editModal = document.getElementById('editModal');
+    const editForm = document.getElementById('editForm');
+    const editNome = document.getElementById('editNome');
+    const editModelo = document.getElementById('editModelo');
+    const editCliente = document.getElementById('editCliente');
+    const editProblema = document.getElementById('editProblema');
+    const cancelEditBtn = document.getElementById('cancelEditBtn');
+
+    let currentEditKey = null;
+
+    entradaRef.on('value', (snapshot) => {
+      const aparelhos = snapshot.val();
+      cardsContainer.innerHTML = '';
+
+      if (aparelhos) {
+        Object.entries(aparelhos).forEach(([key, a]) => {
+          const card = document.createElement('div');
+          card.className = 'bg-white border border-gray-300 rounded-lg p-4 shadow hover:shadow-lg transition cursor-pointer';
+          card.innerHTML = `
+            <h3 class="text-blue-500 text-xl font-bold mb-2">${a.nome || 'Aparelho'}</h3>
+            <p><strong>Modelo:</strong> ${a.modelo || 'Desconhecido'}</p>
+            <p><strong>Cliente:</strong> ${a.cliente || 'Desconhecido'}</p>
+            <p><strong>Problema:</strong> ${a.problema || 'Desconhecido'}</p>
+            <label for="statusSelect${key}" class="block font-semibold mt-2">Status:</label>
+            <select id="statusSelect${key}" class="w-full border border-gray-300 rounded-md p-2" data-id="${key}">
+              <option value="aguardando conserto" ${a.status?.toLowerCase() === 'aguardando conserto' ? 'selected' : ''}>Aguardando conserto</option>
+              <option value="em andamento" ${a.status?.toLowerCase() === 'em andamento' ? 'selected' : ''}>Em andamento</option>
+              <option value="aguardando retirada" ${a.status?.toLowerCase() === 'aguardando retirada' ? 'selected' : ''}>Aguardando retirada</option>
+              <option value="finalizado" ${a.status?.toLowerCase() === 'finalizado' ? 'selected' : ''}>Finalizado</option>
+            </select>
+            <div class="mt-4 flex space-x-2">
+              <button class="edit-btn bg-yellow-400 hover:bg-yellow-500 text-white py-1 px-3 rounded-md" data-id="${key}">Editar</button>
+              <button class="delete-btn bg-red-500 hover:bg-red-600 text-white py-1 px-3 rounded-md" data-id="${key}">Excluir</button>
+            </div>
+          `;
+          cardsContainer.appendChild(card);
+
+          const statusSelect = card.querySelector(`#statusSelect${key}`);
+          const editBtn = card.querySelector('.edit-btn');
+          const deleteBtn = card.querySelector('.delete-btn');
+
+          editBtn.addEventListener('click', () => {
+            openEditModal(key);
+          });
+
+          deleteBtn.addEventListener('click', () => {
+            if (confirm('Tem certeza que deseja excluir este aparelho?')) {
+              const aparelhoRef = database.ref('entrada/' + key);
+              aparelhoRef.remove();
+            }
+          });
+
+          statusSelect.addEventListener('change', (event) => {
+            const newStatus = event.target.value;
+            const aparelhoId = event.target.getAttribute('data-id');
+            const aparelhoRef = database.ref('entrada/' + aparelhoId);
+            const saidasRef = database.ref('saidas');
+
+            if (newStatus === 'finalizado') {
+              const confirmModal = document.getElementById('confirmFinalizarModal');
+              const finalizarDetails = document.getElementById('finalizarDetails');
+              const confirmBtn = document.getElementById('confirmFinalizarBtn');
+              const cancelBtn = document.getElementById('cancelFinalizarBtn');
+
+              aparelhoRef.once('value').then(snapshot => {
+                const aparelhoData = snapshot.val();
+                finalizarDetails.innerHTML = `
+                  <p><strong>Cliente:</strong> ${aparelhoData.cliente || ''}</p>
+                  <p><strong>Data/Hora:</strong> ${aparelhoData.dataHora || ''}</p>
+                  <p><strong>Modelo:</strong> ${aparelhoData.modelo || ''}</p>
+                  <p><strong>Problema:</strong> ${aparelhoData.problema || ''}</p>
+                  <p><strong>Responsável Entrada:</strong> ${aparelhoData.responsavelEntrada || ''}</p>
+                `;
+              });
+
+              confirmModal.classList.remove('hidden');
+
+              const onConfirm = () => {
+                aparelhoRef.once('value').then(snapshot => {
+                  const aparelhoData = snapshot.val();
+                  if (aparelhoData) {
+                    const now = new Date();
+                    const formattedDateTime = now.toLocaleString('pt-BR', { hour12: false });
+                    aparelhoData.dataHoraSaida = formattedDateTime;
+
+                    const valorCobradoInput = document.getElementById('valorCobrado');
+                    const valorCobrado = valorCobradoInput ? parseFloat(valorCobradoInput.value) : null;
+                    if (valorCobrado !== null && !isNaN(valorCobrado) && valorCobrado >= 0) {
+                      aparelhoData.valorCobrado = valorCobrado;
+                    }
+
+                    saidasRef.push(aparelhoData).then(() => {
+                      aparelhoRef.remove();
+                      confirmModal.classList.add('hidden');
+                      confirmBtn.removeEventListener('click', onConfirm);
+                      cancelBtn.removeEventListener('click', onCancel);
+                    });
+                  }
+                });
+              };
+
+              const onCancel = () => {
+                confirmModal.classList.add('hidden');
+                statusSelect.value = a.status?.toLowerCase() || 'aguardando conserto';
+                confirmBtn.removeEventListener('click', onConfirm);
+                cancelBtn.removeEventListener('click', onCancel);
+              };
+
+              confirmBtn.addEventListener('click', onConfirm);
+              cancelBtn.addEventListener('click', onCancel);
+            } else {
+              aparelhoRef.update({ status: newStatus });
+            }
+          });
+        });
+      } else {
+        cardsContainer.innerHTML = '<p class="text-gray-500">Nenhum aparelho encontrado.</p>';
+      }
+    });
+
+    // Function to open edit modal and populate with current data
+    function openEditModal(key) {
+      currentEditKey = key;
+      const aparelhoRef = database.ref('entrada/' + key);
+      aparelhoRef.once('value').then(snapshot => {
+        const data = snapshot.val();
+        if (data) {
+          editNome.value = data.nome || '';
+          editModelo.value = data.modelo || '';
+          editCliente.value = data.cliente || '';
+          editProblema.value = data.problema || '';
+          editModal.classList.remove('hidden');
+        }
+      });
+    }
+
+    // Close edit modal
+    cancelEditBtn.addEventListener('click', () => {
+      editModal.classList.add('hidden');
+      currentEditKey = null;
+    });
+
+    // Handle edit form submission
+    editForm.addEventListener('submit', (e) => {
+      e.preventDefault();
+      if (!currentEditKey) return;
+
+      const updatedData = {
+        nome: editNome.value.trim(),
+        modelo: editModelo.value.trim(),
+        cliente: editCliente.value.trim(),
+        problema: editProblema.value.trim()
+      };
+
+      const aparelhoRef = database.ref('entrada/' + currentEditKey);
+      aparelhoRef.update(updatedData).then(() => {
+        editModal.classList.add('hidden');
+        currentEditKey = null;
+      }).catch((error) => {
+        alert('Erro ao atualizar o aparelho: ' + error.message);
+      });
+    });
+
+    // Toggle user submenu visibility on click
+    document.getElementById('userMenu').addEventListener('click', function(event) {
+      event.stopPropagation();
+      const submenu = document.getElementById('userSubmenu');
+      submenu.classList.toggle('hidden');
+    });
+
+    // Hide submenu if clicking outside
+    document.addEventListener('click', function() {
+      const submenu = document.getElementById('userSubmenu');
+      if (!submenu.classList.contains('hidden')) {
+        submenu.classList.add('hidden');
+      }
+    });
+
+    // Load parts from estoque and populate select
+    const estoqueRef = database.ref('estoque');
+    const pecaSelect = document.getElementById('pecaUtilizada');
+
+    estoqueRef.on('value', (snapshot) => {
+      const estoque = snapshot.val();
+      pecaSelect.innerHTML = '<option value="">Selecione uma peça</option>';
+      if (estoque) {
+        Object.entries(estoque).forEach(([key, peca]) => {
+          const option = document.createElement('option');
+          option.value = key;
+          option.textContent = `${key} (Qtd: ${peca.quantity || peca.quantidade || 0})`;
+          pecaSelect.appendChild(option);
+        });
+      }
+    });
+
+    // Confirm button handler to include observation and parts usage
+    const confirmBtn = document.getElementById('confirmFinalizarBtn');
+    const cancelBtn = document.getElementById('cancelFinalizarBtn');
+    const confirmModal = document.getElementById('confirmFinalizarModal');
+    const observacaoInput = document.getElementById('observacao');
+    const quantidadeInput = document.getElementById('quantidadeUtilizada');
+
+    let currentAparelhoRef = null;
+    let currentStatusSelect = null;
+    let currentAparelhoData = null;
+
+    confirmBtn.addEventListener('click', onConfirm);
+    cancelBtn.addEventListener('click', onCancel);
+  </script>
+ </body>
+</html>
