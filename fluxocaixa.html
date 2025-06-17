@@ -302,7 +302,7 @@
   let contasData = [];
 
   function listenFluxoCaixa() {
-    db.ref('fluxoCaixa').on('value', snapshot => {
+    db.ref('saidas').on('value', snapshot => {
       const data = snapshot.val();
       fluxoData = data ? Object.values(data) : [];
       updateDashboard();
@@ -319,8 +319,7 @@
   function updateDashboard() {
     let totalEntradas = 0, totalSaidas = 0, saldo = 0;
     fluxoData.forEach(item => {
-      if (item.tipo === "entrada") totalEntradas += Number(item.valor) || 0;
-      if (item.tipo === "saida") totalSaidas += Number(item.valor) || 0;
+      totalEntradas += Number(item.valorCobrado) || 0;
     });
     saldo = totalEntradas - totalSaidas;
     document.getElementById('totalEntradas').textContent = formatCurrency(totalEntradas);
@@ -338,8 +337,8 @@
       .forEach(item => {
         const tr = document.createElement('tr');
         tr.innerHTML = `
-          <td class="px-4 py-2">${item.tipo === "entrada" ? "Entrada" : "Saída"}</td>
-          <td class="px-4 py-2">${formatCurrency(item.valor)}</td>
+          <td class="px-4 py-2">Entrada</td>
+          <td class="px-4 py-2">${formatCurrency(item.valorCobrado)}</td>
           <td class="px-4 py-2">${item.produto || ''}</td>
           <td class="px-4 py-2">${item.codigo || ''}</td>
           <td class="px-4 py-2">${item.descricao || ''}</td>
@@ -383,8 +382,7 @@
       if (!item.data) return;
       const [ano, mes, dia] = item.data.split('-');
       if (Number(mes) === currentMonth && Number(ano) === currentYear) {
-        if (item.tipo === "entrada") entradasPorDia[Number(dia) - 1] += Number(item.valor) || 0;
-        if (item.tipo === "saida") saidasPorDia[Number(dia) - 1] += Number(item.valor) || 0;
+        entradasPorDia[Number(dia) - 1] += Number(item.valorCobrado) || 0;
       }
     });
 
@@ -396,7 +394,7 @@
     const categorias = {};
     fluxoData.forEach(item => {
       const cat = item.descricao || "Outro";
-      categorias[cat] = (categorias[cat] || 0) + (Number(item.valor) || 0);
+      categorias[cat] = (categorias[cat] || 0) + (Number(item.valorCobrado) || 0);
     });
     pieChart.data.labels = Object.keys(categorias);
     pieChart.data.datasets[0].data = Object.values(categorias);
@@ -412,8 +410,7 @@
         labels.push(item.data);
         saldoAcumulado.push(saldo);
       }
-      if (item.tipo === "entrada") saldo += Number(item.valor) || 0;
-      if (item.tipo === "saida") saldo -= Number(item.valor) || 0;
+      saldo += Number(item.valorCobrado) || 0;
       saldoAcumulado[saldoAcumulado.length - 1] = saldo;
     });
     lineChart.data.labels = labels;
