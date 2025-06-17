@@ -375,7 +375,7 @@
       serviceNumber++;
       localStorage.setItem('serviceNumber', serviceNumber);
 
-      doc.text(`MOSSORÓ, ${new Date().toLocaleDateString('pt-BR')}`, 10, y); y += 10;
+      doc.text(`${new Date().toLocaleDateString('pt-BR')}`, 10, y); y += 10;
       doc.text(`Garantia Nº ${serviceNumber}`, 10, y); y += 10;
       doc.text(`DATA DE ENTRADA: ${dataEntrada}`, 10, y); y += 10;
       doc.text(`DATA DE SAÍDA: ${dataSaida}`, 10, y); y += 10;
