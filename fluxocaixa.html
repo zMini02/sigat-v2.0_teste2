@@ -302,12 +302,41 @@
   let contasData = [];
 
   function listenFluxoCaixa() {
-    db.ref('saidas').on('value', snapshot => {
+    // Listen to both 'fluxoCaixa' and 'saidas' nodes and combine data
+    const fluxoCaixaRef = db.ref('fluxoCaixa');
+    const saidasRef = db.ref('saidas');
+
+    let fluxoCaixaData = [];
+    let saidasData = [];
+
+    fluxoCaixaRef.on('value', snapshot => {
       const data = snapshot.val();
-      fluxoData = data ? Object.values(data) : [];
+      fluxoCaixaData = data ? Object.values(data) : [];
+      combineAndRender();
+    });
+
+    saidasRef.on('value', snapshot => {
+      const data = snapshot.val();
+      saidasData = data ? Object.values(data) : [];
+      combineAndRender();
+    });
+
+    function combineAndRender() {
+      // Normalize fluxoCaixaData: keep as is, it has tipo, valor, produto, codigo, descricao, data
+      // Normalize saidasData: all are entries, map to have tipo: 'entrada', valor from valorCobrado, produto, codigo, descricao, data
+      const normalizedSaidas = saidasData.map(item => ({
+        tipo: 'entrada',
+        valor: Number(item.valorCobrado) || 0,
+        produto: item.modelo || '',
+        codigo: item.codigo || '',
+        descricao: item.problema || '',
+        data: item.dataHoraSaida || ''
+      }));
+
+      fluxoData = [...fluxoCaixaData, ...normalizedSaidas];
       updateDashboard();
       renderFluxoTable();
-    });
+    }
   }
 
 
@@ -319,7 +348,11 @@
   function updateDashboard() {
     let totalEntradas = 0, totalSaidas = 0, saldo = 0;
     fluxoData.forEach(item => {
-      totalEntradas += Number(item.valorCobrado) || 0;
+      if (item.tipo === 'entrada') {
+        totalEntradas += Number(item.valor) || 0;
+      } else if (item.tipo === 'saida') {
+        totalSaidas += Number(item.valor) || 0;
+      }
     });
     saldo = totalEntradas - totalSaidas;
     document.getElementById('totalEntradas').textContent = formatCurrency(totalEntradas);
@@ -337,8 +370,8 @@
       .forEach(item => {
         const tr = document.createElement('tr');
         tr.innerHTML = `
-          <td class="px-4 py-2">Entrada</td>
-          <td class="px-4 py-2">${formatCurrency(item.valorCobrado)}</td>
+          <td class="px-4 py-2">${item.tipo === 'entrada' ? 'Entrada' : 'Saída'}</td>
+          <td class="px-4 py-2">${formatCurrency(item.valor)}</td>
           <td class="px-4 py-2">${item.produto || ''}</td>
           <td class="px-4 py-2">${item.codigo || ''}</td>
           <td class="px-4 py-2">${item.descricao || ''}</td>
@@ -382,7 +415,11 @@
       if (!item.data) return;
       const [ano, mes, dia] = item.data.split('-');
       if (Number(mes) === currentMonth && Number(ano) === currentYear) {
-        entradasPorDia[Number(dia) - 1] += Number(item.valorCobrado) || 0;
+        if (item.tipo === 'entrada') {
+          entradasPorDia[Number(dia) - 1] += Number(item.valor) || 0;
+        } else if (item.tipo === 'saida') {
+          saidasPorDia[Number(dia) - 1] += Number(item.valor) || 0;
+        }
       }
     });
 
@@ -394,7 +431,7 @@
     const categorias = {};
     fluxoData.forEach(item => {
       const cat = item.descricao || "Outro";
-      categorias[cat] = (categorias[cat] || 0) + (Number(item.valorCobrado) || 0);
+      categorias[cat] = (categorias[cat] || 0) + (Number(item.valor) || 0);
     });
     pieChart.data.labels = Object.keys(categorias);
     pieChart.data.datasets[0].data = Object.values(categorias);
@@ -410,7 +447,11 @@
         labels.push(item.data);
         saldoAcumulado.push(saldo);
       }
-      saldo += Number(item.valorCobrado) || 0;
+      if (item.tipo === 'entrada') {
+        saldo += Number(item.valor) || 0;
+      } else if (item.tipo === 'saida') {
+        saldo -= Number(item.valor) || 0;
+      }
       saldoAcumulado[saldoAcumulado.length - 1] = saldo;
     });
     lineChart.data.labels = labels;
