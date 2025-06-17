@@ -415,10 +415,11 @@
             doc.text(empresa, textStartX, textY);
             doc.setFontSize(8);
             textY += 6;
-            doc.text(empresaEndereco, textStartX, textY);
-            doc.text(`MOSSORÓ, ${new Date().toLocaleDateString()}`, rightX, textY);
-            textY += 6;
-            doc.text(empresaTelefone, textStartX, textY);
+doc.text(empresaEndereco, textStartX, textY);
+// Removed hardcoded "MOSSORÓ" city text as per user request
+// doc.text(`MOSSORÓ, ${new Date().toLocaleDateString()}`, rightX, textY);
+textY += 6;
+doc.text(empresaTelefone, textStartX, textY);
 
             // Draw main header title below company header
             const headerTitleY = Math.max(headerY + 40, textY) + 10;
@@ -518,10 +519,11 @@
             doc.text(empresa, textStartX2, companyDataY);
             doc.setFontSize(8);
             companyDataY += 6;
-            doc.text(empresaEndereco, textStartX2, companyDataY);
-            doc.text(`MOSSORÓ, ${new Date().toLocaleDateString()}`, 110, companyDataY);
-            companyDataY += 6;
-            doc.text(empresaTelefone, textStartX2, companyDataY);
+doc.text(empresaEndereco, textStartX2, companyDataY);
+// Removed hardcoded "MOSSORÓ" city text as per user request
+// doc.text(`MOSSORÓ, ${new Date().toLocaleDateString()}`, 110, companyDataY);
+companyDataY += 6;
+doc.text(empresaTelefone, textStartX2, companyDataY);
 
             let secondY = companyDataY + 10; // increased vertical space between tables
             let secondContentEndY = drawContent(secondY);
